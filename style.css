@@ -38,12 +38,27 @@ body {
     padding: 20px;
 }
 
+/* --- ANIMACIÓN DE MUÑECA --- */
 .game-title {
-    color: #f39c12;
     text-align: center;
-    font-size: 2.3rem;
+    margin-top: 30px; /* Ajuste para que no tape el cielo */
+}
+
+.animate-word {
+    display: inline-block;
+    color: #f39c12;
+    font-size: 3.5rem;
     text-shadow: 4px 4px 0px #d35400, 6px 6px 0px #2c3e50;
-    margin-top: 10px;
+    /* Aplicamos la animación de girar y expandir */
+    animation: expandAndSway 4s ease-in-out infinite;
+}
+
+@keyframes expandAndSway {
+    0% { transform: scale(1) rotate(0deg); }
+    25% { transform: scale(1.15) rotate(-10deg); } /* Se expande y va a la izquierda */
+    50% { transform: scale(1.15) rotate(0deg); }   /* Se mantiene expandido al centro */
+    75% { transform: scale(1.15) rotate(10deg); }  /* Se mantiene expandido a la derecha */
+    100% { transform: scale(1) rotate(0deg); }     /* Vuelve al tamaño normal */
 }
 
 .subtitle {
@@ -52,19 +67,25 @@ body {
     text-shadow: 3px 3px 0px #2980b9, 5px 5px 0px #2c3e50;
 }
 
+/* --- POSICIONAMIENTO HACIA ABAJO --- */
+.spacer {
+    flex-grow: 1; /* Este elemento empuja todo lo que está debajo hacia el fondo */
+    min-height: 50px;
+}
+
 .blackboard-scene {
     display: flex;
     align-items: flex-end;
     justify-content: center;
     width: 100%;
-    margin-top: 25px;
+    margin-bottom: 10px; /* Pegado a los botones */
     position: relative;
-    height: 180px;
+    height: 160px;
 }
 
 .blackboard {
-    width: 200px;
-    height: 120px;
+    width: 180px;
+    height: 100px;
     background-color: #27ae60;
     border: 6px solid #7e5109;
     border-radius: 8px;
@@ -76,36 +97,30 @@ body {
 }
 
 .chalk-graphic {
-    width: 80%;
+    width: 70%;
     height: auto;
-    opacity: 0.95;
 }
 
 .professor-muneca {
-    height: 120px;
+    height: 100px;
     position: absolute;
-    bottom: -15px;
-    right: -45px;
+    bottom: -10px;
+    right: -35px;
     z-index: 3;
 }
 
 .character {
-    height: 100px;
+    height: 85px;
     z-index: 2;
-    position: relative;
 }
-
-.boy-left { margin-right: -15px; }
-.boy-right { margin-left: -15px; }
 
 .menu-buttons {
     display: flex;
     flex-direction: column;
     width: 90%;
-    gap: 12px;
-    margin-top: auto;
-    margin-bottom: 35px;
-    background: rgba(255, 255, 255, 0.9);
+    gap: 10px;
+    margin-bottom: 40px; /* Espacio antes del logo UANE */
+    background: rgba(255, 255, 255, 0.85);
     padding: 15px;
     border-radius: 20px;
     border: 4px solid #2c3e50;
@@ -114,26 +129,22 @@ body {
 .btn {
     width: 100%;
     padding: 12px;
-    font-size: 1.1rem;
+    font-size: 1rem;
     color: white;
     border: 4px solid #2c3e50;
     border-radius: 15px;
     cursor: pointer;
-    transition: transform 0.1s ease, box-shadow 0.1s ease;
     text-shadow: 2px 2px 0px rgba(0,0,0,0.4);
 }
 
-.btn-green  { background: #2ecc71; box-shadow: 0 6px 0 #27ae60; }
-.btn-yellow { background: #f1c40f; box-shadow: 0 6px 0 #f39c12; }
-.btn-purple { background: #9b59b6; box-shadow: 0 6px 0 #8e44ad; }
-.btn-blue   { background: #3498db; box-shadow: 0 6px 0 #2980b9; }
+.btn-green  { background: #2ecc71; box-shadow: 0 5px 0 #27ae60; }
+.btn-yellow { background: #f1c40f; box-shadow: 0 5px 0 #f39c12; }
+.btn-blue   { background: #3498db; box-shadow: 0 5px 0 #2980b9; }
 
 .btn:active {
     transform: translateY(4px);
-    box-shadow: 0 2px 0 #2c3e50;
+    box-shadow: 0 1px 0 #2c3e50;
 }
-
-.btn:hover { filter: brightness(1.05); }
 
 .uane-footer {
     position: absolute;
@@ -141,4 +152,4 @@ body {
     right: 15px;
 }
 
-.uane-logo { height: 35px; }
+.uane-logo { height: 30px; }
