@@ -36,12 +36,14 @@ body {
     flex-direction: column;
     align-items: center;
     padding: 20px;
+    position: relative;
 }
 
-/* --- ANIMACIÓN DE MUÑECA --- */
+/* --- NUEVA ANIMACIÓN COMPLETA PARA MUÑECA --- */
 .game-title {
     text-align: center;
-    margin-top: 30px; /* Ajuste para que no tape el cielo */
+    margin-top: 25px;
+    z-index: 10;
 }
 
 .animate-word {
@@ -49,16 +51,17 @@ body {
     color: #f39c12;
     font-size: 3.5rem;
     text-shadow: 4px 4px 0px #d35400, 6px 6px 0px #2c3e50;
-    /* Aplicamos la animación de girar y expandir */
-    animation: expandAndSway 4s ease-in-out infinite;
+    /* Forzamos al navegador a renderizar la animación combinada */
+    animation: swingAndGrow 4s ease-in-out infinite both;
+    transform-origin: center center;
 }
 
-@keyframes expandAndSway {
+@keyframes swingAndGrow {
     0% { transform: scale(1) rotate(0deg); }
-    25% { transform: scale(1.15) rotate(-10deg); } /* Se expande y va a la izquierda */
-    50% { transform: scale(1.15) rotate(0deg); }   /* Se mantiene expandido al centro */
-    75% { transform: scale(1.15) rotate(10deg); }  /* Se mantiene expandido a la derecha */
-    100% { transform: scale(1) rotate(0deg); }     /* Vuelve al tamaño normal */
+    25% { transform: scale(1.18) rotate(-12deg); }   /* Se expande y va a la izquierda */
+    50% { transform: scale(1.18) rotate(0deg); }     /* Se mantiene grande en el medio */
+    75% { transform: scale(1.18) rotate(12deg); }    /* Se mantiene grande a la derecha */
+    100% { transform: scale(1) rotate(0deg); }       /* Regresa a la normalidad */
 }
 
 .subtitle {
@@ -67,27 +70,27 @@ body {
     text-shadow: 3px 3px 0px #2980b9, 5px 5px 0px #2c3e50;
 }
 
-/* --- POSICIONAMIENTO HACIA ABAJO --- */
+/* --- ESPACIADOR INVISIBLE PARA ASENTAR TODO ABAJO --- */
 .spacer {
-    flex-grow: 1; /* Este elemento empuja todo lo que está debajo hacia el fondo */
-    min-height: 50px;
+    flex-grow: 1;
 }
 
+/* --- ESCENA DEL PIZARRÓN EN EL ESTACIONAMIENTO --- */
 .blackboard-scene {
     display: flex;
     align-items: flex-end;
     justify-content: center;
     width: 100%;
-    margin-bottom: 10px; /* Pegado a los botones */
-    position: relative;
-    height: 160px;
+    height: 140px;
+    margin-bottom: -5px; /* Lo encajamos perfectamente sobre la caja de botones */
+    z-index: 5;
 }
 
 .blackboard {
-    width: 180px;
-    height: 100px;
+    width: 170px;
+    height: 95px;
     background-color: #27ae60;
-    border: 6px solid #7e5109;
+    border: 5px solid #7e5109;
     border-radius: 8px;
     box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
     display: flex;
@@ -97,33 +100,38 @@ body {
 }
 
 .chalk-graphic {
-    width: 70%;
+    width: 75%;
     height: auto;
 }
 
 .professor-muneca {
     height: 100px;
     position: absolute;
-    bottom: -10px;
-    right: -35px;
-    z-index: 3;
+    bottom: -8px;
+    right: -32px;
+    z-index: 6;
 }
 
 .character {
-    height: 85px;
-    z-index: 2;
+    height: 80px;
+    z-index: 5;
 }
 
+.boy-left { margin-right: -12px; }
+.boy-right { margin-left: -12px; }
+
+/* --- CAJA DE BOTONES COMPACTA --- */
 .menu-buttons {
     display: flex;
     flex-direction: column;
-    width: 90%;
-    gap: 10px;
-    margin-bottom: 40px; /* Espacio antes del logo UANE */
-    background: rgba(255, 255, 255, 0.85);
-    padding: 15px;
+    width: 95%;
+    gap: 8px;
+    margin-bottom: 30px; /* Espacio inferior libre */
+    background: rgba(255, 255, 255, 0.88);
+    padding: 12px;
     border-radius: 20px;
     border: 4px solid #2c3e50;
+    z-index: 5;
 }
 
 .btn {
@@ -135,6 +143,7 @@ body {
     border-radius: 15px;
     cursor: pointer;
     text-shadow: 2px 2px 0px rgba(0,0,0,0.4);
+    font-weight: bold;
 }
 
 .btn-green  { background: #2ecc71; box-shadow: 0 5px 0 #27ae60; }
@@ -148,8 +157,9 @@ body {
 
 .uane-footer {
     position: absolute;
-    bottom: 10px;
-    right: 15px;
+    bottom: 8px;
+    right: 12px;
+    z-index: 10;
 }
 
-.uane-logo { height: 30px; }
+.uane-logo { height: 25px; }
