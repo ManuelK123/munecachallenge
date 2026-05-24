@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muñeca Mini-Games</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="game-container">
+        <div id="main-menu" class="screen">
+            
+            <h1 class="game-title">MUÑECA<br><span class="subtitle">MINI-GAMES</span></h1>
+
+            <div class="blackboard-scene">
+                <img src="boy_left.png" alt="Student" class="character boy-left">
+                
+                <div class="blackboard">
+                    <p class="chalk-text">↑ ↓ ← →</p>
+                    <img src="muneca_prof.png" alt="Professor Muñeca" class="professor-muneca">
+                </div>
+                
+                <img src="boy_right.png" alt="Student" class="character boy-right">
+            </div>
+
+            <div class="menu-buttons">
+                <button class="btn btn-green" onclick="startGame('play')">PLAY MINIGAMES</button>
+                <button class="btn btn-yellow" onclick="startGame('story')">MUÑECA'S STORY</button>
+                <button class="btn btn-purple" onclick="startGame('memory')">ARROW CHALLENGE</button>
+                <button class="btn btn-blue" onclick="openSettings()">SETTINGS</button>
+            </div>
+            
+            <div class="uane-footer">
+                <img src="uane_logo.png" alt="UANE Logo" class="uane-logo">
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
