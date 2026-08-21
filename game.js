@@ -1,15 +1,35 @@
 // ==========================================
-// 1. CONFIGURACIÓN DE AUDIO
+// 1. CONFIGURACIÓN DE AUDIO AUTOPLAY
 // ==========================================
-window.addEventListener('click', () => {
+window.addEventListener('DOMContentLoaded', () => {
     const music = document.getElementById('menu-music');
-    if (music && music.paused) {
+    if (music) {
         music.volume = 0.4;
+        // Intenta reproducir de inmediato al cargar la página
         music.play().catch(error => {
-            console.log("Audio en pausa por políticas del navegador:", error);
+            console.log("Autoplay bloqueado por el navegador, esperando interacción:", error);
         });
     }
 });
+
+// Desmutea y asegura el audio con cualquier toque o clic en la pantalla
+const habilitarAudio = () => {
+    const music = document.getElementById('menu-music');
+    if (music) {
+        music.muted = false;
+        if (music.paused) {
+            music.play();
+        }
+    }
+    // Remueve los eventos una vez que el audio está activo
+    window.removeEventListener('click', habilitarAudio);
+    window.removeEventListener('touchstart', habilitarAudio);
+    window.removeEventListener('keydown', habilitarAudio);
+};
+
+window.addEventListener('click', habilitarAudio);
+window.addEventListener('touchstart', habilitarAudio);
+window.addEventListener('keydown', habilitarAudio);
 
 // ==========================================
 // 2. NAVEGACIÓN Y MENÚS
