@@ -5,14 +5,12 @@ window.addEventListener('DOMContentLoaded', () => {
     const music = document.getElementById('menu-music');
     if (music) {
         music.volume = 0.4;
-        // Intenta reproducir de inmediato al cargar la página
         music.play().catch(error => {
             console.log("Autoplay bloqueado por el navegador, esperando interacción:", error);
         });
     }
 });
 
-// Desmutea y asegura el audio con cualquier toque o clic en la pantalla
 const habilitarAudio = () => {
     const music = document.getElementById('menu-music');
     if (music) {
@@ -21,7 +19,6 @@ const habilitarAudio = () => {
             music.play();
         }
     }
-    // Remueve los eventos una vez que el audio está activo
     window.removeEventListener('click', habilitarAudio);
     window.removeEventListener('touchstart', habilitarAudio);
     window.removeEventListener('keydown', habilitarAudio);
@@ -93,13 +90,11 @@ function iniciarNivelEscalera() {
     obsImgs[2].src = 'obs_lapiz.png';
 
     const petSprite = new Image();
-    petSprite.src = 'boy_left.png.png'; // Cambiar por el sprite de la mascota
+    petSprite.src = 'boy_left.png.png';
 
-    // Configuración de 3 carriles sobre el ancho de la escalera
     const carrilesX = [130, 200, 270];
     let carrilActual = 1;
 
-    // Estado del personaje
     const jugador = {
         x: carrilesX[carrilActual],
         yBase: 530,
@@ -135,7 +130,6 @@ function iniciarNivelEscalera() {
 
         velocidad += 0.0008;
 
-        // Movimiento de salto y gravedad
         jugador.y += jugador.vy;
         jugador.vy += 0.7;
 
@@ -145,33 +139,26 @@ function iniciarNivelEscalera() {
             jugador.enSuelo = true;
         }
 
-        // Suavizar movimiento lateral entre carriles
         const objetivoX = carrilesX[carrilActual];
         jugador.x += (objetivoX - jugador.x) * 0.25;
 
-        // Generar obstáculos periódicamente
         if (Math.random() < 0.02) {
             if (obstaculos.length === 0 || obstaculos[obstaculos.length - 1].y > 320) {
                 crearObstaculo();
             }
         }
 
-        // Mover y procesar obstáculos
         for (let i = 0; i < obstaculos.length; i++) {
             let obs = obstaculos[i];
             obs.y += velocidad;
-            obs.escala = 0.3 + (obs.y / 700) * 0.7; // Efecto de profundidad
+            obs.escala = 0.3 + (obs.y / 700) * 0.7;
 
-            const posX = carrilesX[obs.carril];
-
-            // Detección de colisión: misma columna y altura, considerando si está en el suelo
             if (obs.y > 490 && obs.y < 560 && obs.carril === carrilActual && jugador.y > 480) {
                 juegoActivo = false;
                 alert(`¡Perdiste! Chocaste con un obstáculo. Puntaje final: ${Math.floor(puntaje)}`);
                 document.location.reload();
             }
 
-            // Eliminar obstáculo cuando sale de pantalla
             if (obs.y > canvas.height) {
                 obstaculos.splice(i, 1);
                 i--;
@@ -184,7 +171,6 @@ function iniciarNivelEscalera() {
     function renderizar() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // 1. Dibujar escenario de fondo
         if (bgImg.complete && bgImg.naturalWidth !== 0) {
             ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
         } else {
@@ -192,7 +178,6 @@ function iniciarNivelEscalera() {
             ctx.fillRect(0, 0, canvas.width, canvas.height);
         }
 
-        // 2. Dibujar obstáculos (Cuaderno, Mochila, Lápiz)
         for (let obs of obstaculos) {
             const img = obsImgs[obs.tipo];
             const tamano = 50 * obs.escala;
@@ -206,7 +191,6 @@ function iniciarNivelEscalera() {
             }
         }
 
-        // 3. Dibujar personaje/mascota
         const posXJugador = jugador.x - jugador.ancho / 2;
         if (petSprite.complete && petSprite.naturalWidth !== 0) {
             ctx.drawImage(petSprite, posXJugador, jugador.y, jugador.ancho, jugador.alto);
@@ -222,108 +206,13 @@ function iniciarNivelEscalera() {
         if (juegoActivo) requestAnimationFrame(loop);
     }
 
-    // Eventos de control táctil / botones
     document.getElementById('btn-left').onclick = () => { if (carrilActual > 0) carrilActual--; };
     document.getElementById('btn-right').onclick = () => { if (carrilActual < 2) carrilActual++; };
     document.getElementById('btn-jump').onclick = () => jugador.saltar();
 
-    // Eventos de teclado
     window.onkeydown = (e) => {
         if (e.key === 'ArrowLeft' && carrilActual > 0) carrilActual--;
         if (e.key === 'ArrowRight' && carrilActual < 2) carrilActual++;
-        if (e.key === ' ' || e.key === 'ArrowUp') jugador.saltar();
-    };
-
-    loop();
-}
-
-        // Generar obstáculos por la espiral
-        if (Math.random() < 0.02) {
-            if (obstaculos.length === 0 || obstaculos[obstaculos.length - 1].distancia > 150) {
-                crearObstaculo();
-            }
-        }
-
-        // Mover obstáculos siguiendo el arco de la escalera
-        for (let i = 0; i < obstaculos.length; i++) {
-            let obs = obstaculos[i];
-            obs.distancia += 3.5;
-            obs.angulo += 0.03;
-
-            // Calcular posición XY en la espiral
-            let radio = 60 + (obs.distancia * 0.4);
-            let obsX = 200 + Math.cos(obs.angulo) * radio - 20;
-            let obsY = 200 + Math.sin(obs.angulo) * (radio * 0.5) + (obs.distancia * 0.8);
-
-            // Detección de colisión (si el perrito no está brincando)
-            if (obsY > 450 && obsY < 510 && jugador.y > 440) {
-                juegoActivo = false;
-                alert(`¡Tropezaste en la escalera! Puntaje: ${Math.floor(puntaje)}`);
-                document.location.reload();
-            }
-
-            if (obsY > canvas.height) {
-                obstaculos.splice(i, 1);
-                i--;
-                puntaje += 10;
-                scoreEl.innerText = Math.floor(puntaje);
-            }
-        }
-    }
-
-    function dibujarEscaleraCaracol() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // Fondo Morado/Místico estilo UANE Adventures
-        ctx.fillStyle = "#1e092b";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        // Dibujar escalones helicoidales (Espiral de la escalera)
-        ctx.strokeStyle = "#8e44ad";
-        ctx.lineWidth = 14;
-        ctx.beginPath();
-
-        for (let a = 0; a < Math.PI * 6; a += 0.1) {
-            let r = 30 + (a * 15);
-            let x = 200 + Math.cos(a + anguloEscalera) * r;
-            let y = 100 + Math.sin(a + anguloEscalera) * (r * 0.4) + (a * 25);
-            if (a === 0) ctx.moveTo(x, y);
-            else ctx.lineTo(x, y);
-        }
-        ctx.stroke();
-
-        // Dibujar obstáculos sobre los escalones
-        for (let obs of obstaculos) {
-            let radio = 60 + (obs.distancia * 0.4);
-            let obsX = 200 + Math.cos(obs.angulo) * radio - 20;
-            let obsY = 200 + Math.sin(obs.angulo) * (radio * 0.5) + (obs.distancia * 0.8);
-
-            if (obstaculoSprite.complete && obstaculoSprite.naturalWidth !== 0) {
-                ctx.drawImage(obstaculoSprite, obsX, obsY, 40, 40);
-            } else {
-                ctx.fillStyle = "#e74c3c";
-                ctx.fillRect(obsX, obsY, 35, 35);
-            }
-        }
-
-        // Dibujar Mascota Brincando
-        if (petSprite.complete && petSprite.naturalWidth !== 0) {
-            ctx.drawImage(petSprite, jugador.x, jugador.y, jugador.ancho, jugador.alto);
-        } else {
-            ctx.fillStyle = "#f1c40f";
-            ctx.fillRect(jugador.x, jugador.y, jugador.ancho, jugador.alto);
-        }
-    }
-
-    function loop() {
-        actualizar();
-        dibujarEscaleraCaracol();
-        if (juegoActivo) requestAnimationFrame(loop);
-    }
-
-    // Controles
-    document.getElementById('btn-jump').onclick = () => jugador.saltar();
-    window.onkeydown = (e) => {
         if (e.key === ' ' || e.key === 'ArrowUp') jugador.saltar();
     };
 
