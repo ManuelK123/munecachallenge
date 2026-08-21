@@ -6,7 +6,86 @@
     <title>Muñeca Mini-Games</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Estilos ajustados para el contenedor de juego */
+        /* ESTILOS DEL SELECCIONADOR DE ESCENARIOS (ESTILO MELEE) */
+        #stage-select-screen {
+            display: none;
+            width: 100%;
+            height: 100vh;
+            background: radial-gradient(circle, #1a0933 0%, #05020a 100%);
+            box-sizing: border-box;
+            padding: 20px;
+            text-align: center;
+            color: #fff;
+            font-family: 'Arial Black', sans-serif;
+            position: relative;
+        }
+
+        .stage-title {
+            font-size: 28px;
+            letter-spacing: 3px;
+            color: #ff3366;
+            text-shadow: 0 0 10px #ff3366, 2px 2px 0px #000;
+            margin-bottom: 20px;
+        }
+
+        .stage-grid {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .stage-card {
+            width: 140px;
+            background: rgba(20, 20, 35, 0.85);
+            border: 3px solid #4a4a75;
+            border-radius: 8px;
+            padding: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.7);
+        }
+
+        .stage-card:hover, .stage-card:active {
+            border-color: #00e5ff;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px #00e5ff;
+        }
+
+        .stage-thumb {
+            width: 100%;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 4px;
+            background: #111;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+        }
+
+        .stage-name {
+            font-size: 12px;
+            margin-top: 8px;
+            text-transform: uppercase;
+            color: #e0e0e0;
+            letter-spacing: 1px;
+        }
+
+        .btn-back {
+            margin-top: 30px;
+            padding: 10px 20px;
+            background: #e74c3c;
+            border: 2px solid #fff;
+            color: white;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* PANTALLA DEL CANVAS Y CONTROLES */
         #game-screen {
             display: none;
             position: relative;
@@ -86,7 +165,7 @@
             </div>
 
             <div class="menu-buttons">
-                <button class="btn btn-green" onclick="startGame('play')">PLAY MINIGAMES</button>
+                <button class="btn btn-green" onclick="showStageSelect()">PLAY MINIGAMES</button>
                 <button class="btn btn-yellow" onclick="startGame('story')">THE PLOT: MUÑECA'S STORY</button>
                 <button class="btn btn-blue" onclick="openSettings()">SETTINGS</button>
             </div>
@@ -96,7 +175,28 @@
             </div>
         </div>
 
-        <!-- PANTALLA DEL JUEGO (ESCALERA INFINITA) -->
+        <!-- SELECCIONADOR DE ESCENARIOS (STAGE SELECT) -->
+        <div id="stage-select-screen">
+            <h2 class="stage-title">STAGE SELECT</h2>
+            
+            <div class="stage-grid">
+                <!-- Tarjeta Nivel 1 -->
+                <div class="stage-card" onclick="cargarMinijuego('escalera')">
+                    <div class="stage-thumb">🏫</div>
+                    <div class="stage-name">1. Escalera UANE</div>
+                </div>
+
+                <!-- Tarjeta Nivel 2 -->
+                <div class="stage-card" onclick="cargarMinijuego('kara')">
+                    <div class="stage-thumb">🏎️</div>
+                    <div class="stage-name">2. Mini Kara</div>
+                </div>
+            </div>
+
+            <button class="btn-back" onclick="volverAlMenu()">◀ REGRESAR</button>
+        </div>
+
+        <!-- PANTALLA DE JUEGO (CANVAS) -->
         <div id="game-screen">
             <div id="ui">Puntaje: <span id="score">0</span></div>
             <canvas id="gameCanvas"></canvas>
