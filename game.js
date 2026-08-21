@@ -1,29 +1,33 @@
 // ==========================================
-// 1. CONFIGURACIÓN DE AUDIO AUTOPLAY
+// 1. CONFIGURACIÓN DE AUDIO POR INTERACCIÓN
 // ==========================================
-window.addEventListener('DOMContentLoaded', () => {
+let audioIniciado = false;
+
+const activarMusicaMenu = () => {
+    if (audioIniciado) return;
+    
     const music = document.getElementById('menu-music');
     if (music) {
         music.volume = 0.4;
-        music.play().catch(error => {
-            console.log("Autoplay bloqueado por el navegador:", error);
+        music.muted = false;
+        music.play().then(() => {
+            audioIniciado = true;
+            console.log("Música del menú iniciada correctamente.");
+        }).catch(error => {
+            console.log("Error al reproducir audio:", error);
         });
     }
-});
 
-const habilitarAudio = () => {
-    const music = document.getElementById('menu-music');
-    if (music) {
-        music.muted = false;
-        if (music.paused) music.play();
-    }
-    window.removeEventListener('click', habilitarAudio);
-    window.removeEventListener('touchstart', habilitarAudio);
-    window.removeEventListener('keydown', habilitarAudio);
+    // Remover los escuchas una vez que ya arrancó la música
+    window.removeEventListener('click', activarMusicaMenu);
+    window.removeEventListener('touchstart', activarMusicaMenu);
+    window.removeEventListener('keydown', activarMusicaMenu);
 };
-window.addEventListener('click', habilitarAudio);
-window.addEventListener('touchstart', habilitarAudio);
-window.addEventListener('keydown', habilitarAudio);
+
+// Escuchar cualquier toque, clic o tecla en todo el menú principal para arrancar el audio
+window.addEventListener('click', activarMusicaMenu);
+window.addEventListener('touchstart', activarMusicaMenu);
+window.addEventListener('keydown', activarMusicaMenu);
 
 // ==========================================
 // 2. NAVEGACIÓN Y MENÚS
