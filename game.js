@@ -49,7 +49,7 @@ function openSettings() {
 }
 
 // ==========================================
-// 3. MINIJUEGO 1: ESCALERA INFINITA (EDIFICIO)
+// 3. MINIJUEGO 1: ESCALERA CARACOL (CIRCULAR)
 // ==========================================
 function iniciarNivelEscalera() {
     const canvas = document.getElementById('gameCanvas');
@@ -59,67 +59,86 @@ function iniciarNivelEscalera() {
     canvas.width = 400;
     canvas.height = 700;
 
-    const assets = {
-        fondo: new Image(),
-        jugador: new Image(),
-        obstaculo: new Image()
+    let puntaje = 0;
+    let anguloEscalera = 0;
+    let juegoActivo = true;
+
+    // Sprite de la mascota
+    const petSprite = new Image();
+    petSprite.src = 'boy_left.png.png'; // Reemplazar por sprite del perrito brincando
+
+    const obstaculoSprite = new Image();
+    obstaculoSprite.src = 'chalkboard_text.png.png'; // Reemplazar por mochila/objeto
+
+    // Objeto del Jugador
+    const jugador = {
+        x: 170,
+        yBase: 480,
+        y: 480,
+        ancho: 65,
+        alto: 65,
+        vy: 0,
+        enSuelo: true,
+        saltar: function() {
+            if (this.enSuelo) {
+                this.vy = -12;
+                this.enSuelo = false;
+            }
+        }
     };
 
-    assets.fondo.src = 'campus_background.png';
-    assets.jugador.src = 'boy_left.png.png';
-    assets.obstaculo.src = 'chalkboard_text.png.png';
-
-    const carriles = [80, 200, 320];
-    let carrilActual = 1;
-    let puntaje = 0;
-    let velocidad = 4;
-    let juegoActivo = true;
-    let fondoY = 0;
-
-    const jugador = { x: carriles[carrilActual], y: 530, ancho: 70, alto: 70 };
     let obstaculos = [];
 
     function crearObstaculo() {
-        const carrilAleatorio = Math.floor(Math.random() * 3);
         obstaculos.push({
-            x: carriles[carrilAleatorio] - 30,
-            y: -70,
-            ancho: 60,
-            alto: 60
+            angulo: -Math.PI / 2, // Aparece desde la parte superior de la espiral
+            distancia: 0,
+            pasado: false
         });
     }
 
     function actualizar() {
         if (!juegoActivo) return;
 
-        velocidad += 0.0015;
-        fondoY += velocidad;
-        if (fondoY >= canvas.height) fondoY = 0;
+        // Rotación continua para simular la bajada/subida de la escalera caracol
+        anguloEscalera += 0.03;
 
-        jugador.x += (carriles[carrilActual] - 35 - jugador.x) * 0.25;
+        // Gravedad y salto estilo The Lion King / Arcade
+        jugador.y += jugador.vy;
+        jugador.vy += 0.6; // Gravedad
 
-        if (Math.random() < 0.022) {
-            if (obstaculos.length === 0 || obstaculos[obstaculos.length - 1].y > 220) {
+        if (jugador.y >= jugador.yBase) {
+            jugador.y = jugador.yBase;
+            jugador.vy = 0;
+            jugador.enSuelo = true;
+        }
+
+        // Generar obstáculos por la espiral
+        if (Math.random() < 0.02) {
+            if (obstaculos.length === 0 || obstaculos[obstaculos.length - 1].distancia > 150) {
                 crearObstaculo();
             }
         }
 
+        // Mover obstáculos siguiendo el arco de la escalera
         for (let i = 0; i < obstaculos.length; i++) {
             let obs = obstaculos[i];
-            obs.y += velocidad;
+            obs.distancia += 3.5;
+            obs.angulo += 0.03;
 
-            if (
-                jugador.x < obs.x + obs.ancho &&
-                jugador.x + jugador.ancho > obs.x &&
-                jugador.y < obs.y + obs.alto &&
-                jugador.y + jugador.alto > obs.y
-            ) {
+            // Calcular posición XY en la espiral
+            let radio = 60 + (obs.distancia * 0.4);
+            let obsX = 200 + Math.cos(obs.angulo) * radio - 20;
+            let obsY = 200 + Math.sin(obs.angulo) * (radio * 0.5) + (obs.distancia * 0.8);
+
+            // Detección de colisión (si el perrito no está brincando)
+            if (obsY > 450 && obsY < 510 && jugador.y > 440) {
                 juegoActivo = false;
-                alert(`¡Game Over! Puntaje obtenido: ${Math.floor(puntaje)}`);
+                alert(`¡Tropezaste en la escalera! Puntaje: ${Math.floor(puntaje)}`);
                 document.location.reload();
             }
 
-            if (obs.y > canvas.height) {
+            if (obsY > canvas.height) {
                 obstaculos.splice(i, 1);
                 i--;
                 puntaje += 10;
@@ -128,46 +147,60 @@ function iniciarNivelEscalera() {
         }
     }
 
-    function dibujar() {
+    function dibujarEscaleraCaracol() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        if (assets.fondo.complete && assets.fondo.naturalWidth !== 0) {
-            ctx.drawImage(assets.fondo, 0, fondoY - canvas.height, canvas.width, canvas.height);
-            ctx.drawImage(assets.fondo, 0, fondoY, canvas.width, canvas.height);
-        } else {
-            ctx.fillStyle = "#2c3e50";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-        }
+        // Fondo Morado/Místico estilo UANE Adventures
+        ctx.fillStyle = "#1e092b";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        if (assets.jugador.complete && assets.jugador.naturalWidth !== 0) {
-            ctx.drawImage(assets.jugador, jugador.x, jugador.y, jugador.ancho, jugador.alto);
-        } else {
-            ctx.fillStyle = "#2ecc71";
-            ctx.fillRect(jugador.x, jugador.y, jugador.ancho, jugador.alto);
-        }
+        // Dibujar escalones helicoidales (Espiral de la escalera)
+        ctx.strokeStyle = "#8e44ad";
+        ctx.lineWidth = 14;
+        ctx.beginPath();
 
+        for (let a = 0; a < Math.PI * 6; a += 0.1) {
+            let r = 30 + (a * 15);
+            let x = 200 + Math.cos(a + anguloEscalera) * r;
+            let y = 100 + Math.sin(a + anguloEscalera) * (r * 0.4) + (a * 25);
+            if (a === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        // Dibujar obstáculos sobre los escalones
         for (let obs of obstaculos) {
-            if (assets.obstaculo.complete && assets.obstaculo.naturalWidth !== 0) {
-                ctx.drawImage(assets.obstaculo, obs.x, obs.y, obs.ancho, obs.alto);
+            let radio = 60 + (obs.distancia * 0.4);
+            let obsX = 200 + Math.cos(obs.angulo) * radio - 20;
+            let obsY = 200 + Math.sin(obs.angulo) * (radio * 0.5) + (obs.distancia * 0.8);
+
+            if (obstaculoSprite.complete && obstaculoSprite.naturalWidth !== 0) {
+                ctx.drawImage(obstaculoSprite, obsX, obsY, 40, 40);
             } else {
                 ctx.fillStyle = "#e74c3c";
-                ctx.fillRect(obs.x, obs.y, obs.ancho, obs.alto);
+                ctx.fillRect(obsX, obsY, 35, 35);
             }
+        }
+
+        // Dibujar Mascota Brincando
+        if (petSprite.complete && petSprite.naturalWidth !== 0) {
+            ctx.drawImage(petSprite, jugador.x, jugador.y, jugador.ancho, jugador.alto);
+        } else {
+            ctx.fillStyle = "#f1c40f";
+            ctx.fillRect(jugador.x, jugador.y, jugador.ancho, jugador.alto);
         }
     }
 
     function loop() {
         actualizar();
-        dibujar();
+        dibujarEscaleraCaracol();
         if (juegoActivo) requestAnimationFrame(loop);
     }
 
-    document.getElementById('btn-left').onclick = () => { if (carrilActual > 0) carrilActual--; };
-    document.getElementById('btn-right').onclick = () => { if (carrilActual < 2) carrilActual++; };
-
+    // Controles
+    document.getElementById('btn-jump').onclick = () => jugador.saltar();
     window.onkeydown = (e) => {
-        if (e.key === 'ArrowLeft' && carrilActual > 0) carrilActual--;
-        if (e.key === 'ArrowRight' && carrilActual < 2) carrilActual++;
+        if (e.key === ' ' || e.key === 'ArrowUp') jugador.saltar();
     };
 
     loop();
@@ -248,15 +281,12 @@ function iniciarMiniKara() {
     function dibujarPerspectiva() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Cielo
         ctx.fillStyle = "#1e272e";
         ctx.fillRect(0, 0, canvas.width, 180);
 
-        // Pasto
         ctx.fillStyle = "#2ed573";
         ctx.fillRect(0, 180, canvas.width, canvas.height - 180);
 
-        // Carretera en trapecio
         ctx.fillStyle = "#57606f";
         ctx.beginPath();
         ctx.moveTo(150, 180);
@@ -266,7 +296,6 @@ function iniciarMiniKara() {
         ctx.closePath();
         ctx.fill();
 
-        // Líneas animadas
         ctx.strokeStyle = "#ffffff";
         ctx.lineWidth = 4;
         ctx.setLineDash([20, 20]);
@@ -278,7 +307,6 @@ function iniciarMiniKara() {
         ctx.stroke();
         ctx.setLineDash([]);
 
-        // Obstáculos
         for (let obs of obstaculos) {
             let posX = 200 + (carriles[obs.carril] - 200) * obs.escala - (30 * obs.escala);
             let tamano = 60 * obs.escala;
@@ -291,7 +319,6 @@ function iniciarMiniKara() {
             }
         }
 
-        // Jugador
         if (assetsKara.auto.complete && assetsKara.auto.naturalWidth !== 0) {
             ctx.drawImage(assetsKara.auto, jugador.x, jugador.y, jugador.ancho, jugador.alto);
         } else {
@@ -307,7 +334,7 @@ function iniciarMiniKara() {
     }
 
     document.getElementById('btn-left').onclick = () => { if (carrilActual > 0) carrilActual--; };
-    document.getElementById('btn-right').onclick = () => { if (carrilActual < 2) carrilActual--; };
+    document.getElementById('btn-right').onclick = () => { if (carrilActual < 2) carrilActual++; };
 
     window.onkeydown = (e) => {
         if (e.key === 'ArrowLeft' && carrilActual > 0) carrilActual--;
