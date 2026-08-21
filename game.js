@@ -88,9 +88,9 @@ function iniciarNivelEscalera() {
     obsImgs[1].src = 'obs_mochila.png'; // Mochila
     obsImgs[2].src = 'obs_lapiz.png';   // Lápiz
 
-    // Cargar Sprite Sheet del Perrito (actualizado a tobias.jpg)
+    // Cargar Sprite Sheet del Perrito (actualizado a tobias.png)
     const petSheet = new Image();
-    petSheet.src = 'tobias.jpg';
+    petSheet.src = 'tobias.png';
 
     const carrilesX = [120, 200, 280];
     let carrilActual = 1;
@@ -213,7 +213,7 @@ function iniciarNivelEscalera() {
             }
         }
 
-        // 3. Dibujar Perrito desde el Sprite Sheet (`tobias.jpg`)
+        // 3. Dibujar Perrito desde el Sprite Sheet (`tobias.png`)
         const posXJugador = jugador.x - jugador.ancho / 2;
         if (petSheet.complete && petSheet.naturalWidth !== 0) {
             const sheetW = petSheet.width / 4;
