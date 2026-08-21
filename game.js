@@ -18,13 +18,11 @@ const activarMusicaMenu = () => {
         });
     }
 
-    // Remover los escuchas una vez que ya arrancó la música
     window.removeEventListener('click', activarMusicaMenu);
     window.removeEventListener('touchstart', activarMusicaMenu);
     window.removeEventListener('keydown', activarMusicaMenu);
 };
 
-// Escuchar cualquier toque, clic o tecla en todo el menú principal para arrancar el audio
 window.addEventListener('click', activarMusicaMenu);
 window.addEventListener('touchstart', activarMusicaMenu);
 window.addEventListener('keydown', activarMusicaMenu);
@@ -77,18 +75,17 @@ function iniciarNivelEscalera() {
     let puntaje = 0;
     let juegoActivo = true;
     let velocidad = 4;
-    let bgOffsetY = 0; // Efecto de movimiento de la escalera
+    let bgOffsetY = 0;
 
-    // Cargar fondo y assets de obstáculos
     const bgImg = new Image();
     bgImg.src = 'escenario_escalera.png';
 
     const obsImgs = [new Image(), new Image(), new Image()];
-    obsImgs[0].src = 'obs_cuaderno.png'; // Cuaderno
-    obsImgs[1].src = 'obs_mochila.png'; // Mochila
-    obsImgs[2].src = 'obs_lapiz.png';   // Lápiz
+    obsImgs[0].src = 'obs_cuaderno.png';
+    obsImgs[1].src = 'obs_mochila.png';
+    obsImgs[2].src = 'obs_lapiz.png';
 
-    // Cargar Sprite Sheet del Perrito (actualizado a tobias.png)
+    // Carga local de tobias.png en tu PC
     const petSheet = new Image();
     petSheet.src = 'tobias.png';
 
@@ -123,7 +120,7 @@ function iniciarNivelEscalera() {
             carril: carrilAleatorio,
             tipo: tipoAleatorio,
             y: 150,
-            escala: 0.2 // Comienzan pequeños en el fondo y crecen al caer
+            escala: 0.2
         });
     }
 
@@ -131,9 +128,8 @@ function iniciarNivelEscalera() {
         if (!juegoActivo) return;
 
         velocidad += 0.001;
-        bgOffsetY = (bgOffsetY + velocidad * 2) % canvas.height; // Movimiento dinámico de la escalera
+        bgOffsetY = (bgOffsetY + velocidad * 2) % canvas.height;
 
-        // Gravedad y salto
         jugador.y += jugador.vy;
         jugador.vy += 0.75;
 
@@ -143,34 +139,28 @@ function iniciarNivelEscalera() {
             jugador.enSuelo = true;
         }
 
-        // Suavizar movimiento horizontal
         const objetivoX = carrilesX[carrilActual];
         if (Math.abs(jugador.x - objetivoX) > 1) {
             jugador.x += (objetivoX - jugador.x) * 0.3;
-            // Animar frames de caminata (Fila 0 del sprite sheet: 4 columnas)
             jugador.animCounter++;
             if (jugador.animCounter % 6 === 0) {
                 jugador.frameX = (jugador.frameX + 1) % 4;
             }
         } else {
-            // Frame en reposo / sentado (Fila 1 del sprite sheet)
             jugador.frameX = 0; 
         }
 
-        // Generar obstáculos
         if (Math.random() < 0.025) {
             if (obstaculos.length === 0 || obstaculos[obstaculos.length - 1].y > 280) {
                 crearObstaculo();
             }
         }
 
-        // Actualizar posición de obstáculos
         for (let i = 0; i < obstaculos.length; i++) {
             let obs = obstaculos[i];
             obs.y += velocidad * 1.5;
-            obs.escala = 0.2 + (obs.y / 600) * 1.2; // Crecimiento masivo conforme se acercan
+            obs.escala = 0.2 + (obs.y / 600) * 1.2;
 
-            // Detección de colisión (si están cerca del jugador y este no brincó lo suficiente)
             if (obs.y > 470 && obs.y < 550 && obs.carril === carrilActual && jugador.y > 460) {
                 juegoActivo = false;
                 alert(`¡Oh no! Te tropezaste con el material escolar. Puntaje: ${Math.floor(puntaje)}`);
@@ -189,7 +179,6 @@ function iniciarNivelEscalera() {
     function renderizar() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // 1. Dibujar Fondo de Escalera con efecto de desplazamiento vertical continuo
         if (bgImg.complete && bgImg.naturalWidth !== 0) {
             ctx.drawImage(bgImg, 0, bgOffsetY - canvas.height, canvas.width, canvas.height);
             ctx.drawImage(bgImg, 0, bgOffsetY, canvas.width, canvas.height);
@@ -198,10 +187,9 @@ function iniciarNivelEscalera() {
             ctx.fillRect(0, 0, canvas.width, canvas.height);
         }
 
-        // 2. Dibujar Obstáculos Grandes (Cuaderno, Mochila, Lápiz)
         for (let obs of obstaculos) {
             const img = obsImgs[obs.tipo];
-            const baseSize = 90; // Tamaño base grande
+            const baseSize = 90;
             const tamanoActual = baseSize * obs.escala;
             const posX = carrilesX[obs.carril] - tamanoActual / 2;
 
@@ -213,17 +201,16 @@ function iniciarNivelEscalera() {
             }
         }
 
-        // 3. Dibujar Perrito desde el Sprite Sheet (`tobias.png`)
         const posXJugador = jugador.x - jugador.ancho / 2;
         if (petSheet.complete && petSheet.naturalWidth !== 0) {
             const sheetW = petSheet.width / 4;
             const sheetH = petSheet.height / 3;
             
-            let filaSprite = 0; // Fila superior para caminar
+            let filaSprite = 0;
             if (!jugador.enSuelo) {
-                filaSprite = 0; // Frame de salto
+                filaSprite = 0;
             } else if (Math.abs(jugador.x - carrilesX[carrilActual]) < 1) {
-                filaSprite = 1; // Fila central para estar sentado/reposo
+                filaSprite = 1;
             }
 
             ctx.drawImage(
@@ -243,12 +230,10 @@ function iniciarNivelEscalera() {
         if (juegoActivo) requestAnimationFrame(loop);
     }
 
-    // Controles táctiles
     document.getElementById('btn-left').onclick = () => { if (carrilActual > 0) carrilActual--; };
     document.getElementById('btn-right').onclick = () => { if (carrilActual < 2) carrilActual++; };
     document.getElementById('btn-jump').onclick = () => jugador.saltar();
 
-    // Controles de teclado
     window.onkeydown = (e) => {
         if (e.key === 'ArrowLeft' && carrilActual > 0) carrilActual--;
         if (e.key === 'ArrowRight' && carrilActual < 2) carrilActual++;
