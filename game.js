@@ -14,25 +14,33 @@ window.addEventListener('click', () => {
 // ==========================================
 // 2. NAVEGACIÓN Y MENÚS
 // ==========================================
-function startGame(gameType) {
-    console.log("Cargando escena: " + gameType);
-    
-    if (gameType === 'play') {
-        // Ocultar menú principal y mostrar pantalla del juego
-        document.getElementById('main-menu').style.display = 'none';
-        document.getElementById('game-screen').style.display = 'block';
+function showStageSelect() {
+    document.getElementById('main-menu').style.display = 'none';
+    document.getElementById('stage-select-screen').style.display = 'block';
+}
 
-        // Detener música del menú
-        const music = document.getElementById('menu-music');
-        if (music) music.pause();
+function volverAlMenu() {
+    document.getElementById('stage-select-screen').style.display = 'none';
+    document.getElementById('main-menu').style.display = 'block';
+}
 
-        // ACTIVA EL MINIJUEGO DE CARRETERA (MINI KARA MUÑECA)
+function cargarMinijuego(nombreNivel) {
+    document.getElementById('stage-select-screen').style.display = 'none';
+    document.getElementById('game-screen').style.display = 'block';
+
+    const music = document.getElementById('menu-music');
+    if (music) music.pause();
+
+    if (nombreNivel === 'escalera') {
+        iniciarNivelEscalera();
+    } else if (nombreNivel === 'kara') {
         iniciarMiniKara();
+    }
+}
 
-    } else if (gameType === 'story') {
+function startGame(gameType) {
+    if (gameType === 'story') {
         alert("Una historia increíble en el campus de UANE está por comenzar...");
-    } else if (gameType === 'memory') {
-        alert("¡Muñeca dice: Prepárate para memorizar las flechas!");
     }
 }
 
@@ -270,7 +278,7 @@ function iniciarMiniKara() {
         ctx.stroke();
         ctx.setLineDash([]);
 
-        // Obstáculos con escala
+        // Obstáculos
         for (let obs of obstaculos) {
             let posX = 200 + (carriles[obs.carril] - 200) * obs.escala - (30 * obs.escala);
             let tamano = 60 * obs.escala;
