@@ -69,7 +69,7 @@ function openSettings() {
 }
 
 // ==========================================
-// 3. MINIJUEGO 1: ESCALERA CARACOL (CIRCULAR)
+// 3. MINIJUEGO 1: ESCALERA CARACOL (3 CARRILES + SALTO)
 // ==========================================
 function iniciarNivelEscalera() {
     const canvas = document.getElementById('gameCanvas');
@@ -80,28 +80,37 @@ function iniciarNivelEscalera() {
     canvas.height = 700;
 
     let puntaje = 0;
-    let anguloEscalera = 0;
     let juegoActivo = true;
+    let velocidad = 4;
 
-    // Sprite de la mascota
+    // Cargar assets
+    const bgImg = new Image();
+    bgImg.src = 'escenario_escalera.png';
+
+    const obsImgs = [new Image(), new Image(), new Image()];
+    obsImgs[0].src = 'obs_cuaderno.png';
+    obsImgs[1].src = 'obs_mochila.png';
+    obsImgs[2].src = 'obs_lapiz.png';
+
     const petSprite = new Image();
-    petSprite.src = 'boy_left.png.png'; // Reemplazar por sprite del perrito brincando
+    petSprite.src = 'boy_left.png.png'; // Cambiar por el sprite de la mascota
 
-    const obstaculoSprite = new Image();
-    obstaculoSprite.src = 'chalkboard_text.png.png'; // Reemplazar por mochila/objeto
+    // Configuración de 3 carriles sobre el ancho de la escalera
+    const carrilesX = [130, 200, 270];
+    let carrilActual = 1;
 
-    // Objeto del Jugador
+    // Estado del personaje
     const jugador = {
-        x: 170,
-        yBase: 480,
-        y: 480,
-        ancho: 65,
-        alto: 65,
+        x: carrilesX[carrilActual],
+        yBase: 530,
+        y: 530,
+        ancho: 60,
+        alto: 60,
         vy: 0,
         enSuelo: true,
         saltar: function() {
             if (this.enSuelo) {
-                this.vy = -12;
+                this.vy = -13;
                 this.enSuelo = false;
             }
         }
@@ -110,28 +119,123 @@ function iniciarNivelEscalera() {
     let obstaculos = [];
 
     function crearObstaculo() {
+        const carrilAleatorio = Math.floor(Math.random() * 3);
+        const tipoAleatorio = Math.floor(Math.random() * 3);
+        
         obstaculos.push({
-            angulo: -Math.PI / 2, // Aparece desde la parte superior de la espiral
-            distancia: 0,
-            pasado: false
+            carril: carrilAleatorio,
+            tipo: tipoAleatorio,
+            y: 180,
+            escala: 0.3
         });
     }
 
     function actualizar() {
         if (!juegoActivo) return;
 
-        // Rotación continua para simular la bajada/subida de la escalera caracol
-        anguloEscalera += 0.03;
+        velocidad += 0.0008;
 
-        // Gravedad y salto estilo The Lion King / Arcade
+        // Movimiento de salto y gravedad
         jugador.y += jugador.vy;
-        jugador.vy += 0.6; // Gravedad
+        jugador.vy += 0.7;
 
         if (jugador.y >= jugador.yBase) {
             jugador.y = jugador.yBase;
             jugador.vy = 0;
             jugador.enSuelo = true;
         }
+
+        // Suavizar movimiento lateral entre carriles
+        const objetivoX = carrilesX[carrilActual];
+        jugador.x += (objetivoX - jugador.x) * 0.25;
+
+        // Generar obstáculos periódicamente
+        if (Math.random() < 0.02) {
+            if (obstaculos.length === 0 || obstaculos[obstaculos.length - 1].y > 320) {
+                crearObstaculo();
+            }
+        }
+
+        // Mover y procesar obstáculos
+        for (let i = 0; i < obstaculos.length; i++) {
+            let obs = obstaculos[i];
+            obs.y += velocidad;
+            obs.escala = 0.3 + (obs.y / 700) * 0.7; // Efecto de profundidad
+
+            const posX = carrilesX[obs.carril];
+
+            // Detección de colisión: misma columna y altura, considerando si está en el suelo
+            if (obs.y > 490 && obs.y < 560 && obs.carril === carrilActual && jugador.y > 480) {
+                juegoActivo = false;
+                alert(`¡Perdiste! Chocaste con un obstáculo. Puntaje final: ${Math.floor(puntaje)}`);
+                document.location.reload();
+            }
+
+            // Eliminar obstáculo cuando sale de pantalla
+            if (obs.y > canvas.height) {
+                obstaculos.splice(i, 1);
+                i--;
+                puntaje += 10;
+                scoreEl.innerText = Math.floor(puntaje);
+            }
+        }
+    }
+
+    function renderizar() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // 1. Dibujar escenario de fondo
+        if (bgImg.complete && bgImg.naturalWidth !== 0) {
+            ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+        } else {
+            ctx.fillStyle = "#1e092b";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // 2. Dibujar obstáculos (Cuaderno, Mochila, Lápiz)
+        for (let obs of obstaculos) {
+            const img = obsImgs[obs.tipo];
+            const tamano = 50 * obs.escala;
+            const posX = carrilesX[obs.carril] - tamano / 2;
+
+            if (img.complete && img.naturalWidth !== 0) {
+                ctx.drawImage(img, posX, obs.y, tamano, tamano);
+            } else {
+                ctx.fillStyle = "#e74c3c";
+                ctx.fillRect(posX, obs.y, tamano, tamano);
+            }
+        }
+
+        // 3. Dibujar personaje/mascota
+        const posXJugador = jugador.x - jugador.ancho / 2;
+        if (petSprite.complete && petSprite.naturalWidth !== 0) {
+            ctx.drawImage(petSprite, posXJugador, jugador.y, jugador.ancho, jugador.alto);
+        } else {
+            ctx.fillStyle = "#f1c40f";
+            ctx.fillRect(posXJugador, jugador.y, jugador.ancho, jugador.alto);
+        }
+    }
+
+    function loop() {
+        actualizar();
+        renderizar();
+        if (juegoActivo) requestAnimationFrame(loop);
+    }
+
+    // Eventos de control táctil / botones
+    document.getElementById('btn-left').onclick = () => { if (carrilActual > 0) carrilActual--; };
+    document.getElementById('btn-right').onclick = () => { if (carrilActual < 2) carrilActual++; };
+    document.getElementById('btn-jump').onclick = () => jugador.saltar();
+
+    // Eventos de teclado
+    window.onkeydown = (e) => {
+        if (e.key === 'ArrowLeft' && carrilActual > 0) carrilActual--;
+        if (e.key === 'ArrowRight' && carrilActual < 2) carrilActual++;
+        if (e.key === ' ' || e.key === 'ArrowUp') jugador.saltar();
+    };
+
+    loop();
+}
 
         // Generar obstáculos por la espiral
         if (Math.random() < 0.02) {
