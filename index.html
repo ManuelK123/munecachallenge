@@ -6,7 +6,7 @@
     <title>Muñeca Mini-Games</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* ESTILOS DEL SELECCIONADOR DE ESCENARIOS (ESTILO MELEE) */
+        /* SELECCIONADOR DE ESCENARIOS (MELEE STYLE) */
         #stage-select-screen {
             display: none;
             width: 100%;
@@ -31,14 +31,14 @@
         .stage-grid {
             display: flex;
             justify-content: center;
-            gap: 15px;
+            gap: 20px;
             flex-wrap: wrap;
-            max-width: 500px;
+            max-width: 600px;
             margin: 0 auto;
         }
 
         .stage-card {
-            width: 140px;
+            width: 160px;
             background: rgba(20, 20, 35, 0.85);
             border: 3px solid #4a4a75;
             border-radius: 8px;
@@ -56,18 +56,14 @@
 
         .stage-thumb {
             width: 100%;
-            height: 90px;
+            height: 120px;
             object-fit: cover;
             border-radius: 4px;
             background: #111;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 30px;
         }
 
         .stage-name {
-            font-size: 12px;
+            font-size: 13px;
             margin-top: 8px;
             text-transform: uppercase;
             color: #e0e0e0;
@@ -85,7 +81,7 @@
             cursor: pointer;
         }
 
-        /* PANTALLA DEL CANVAS Y CONTROLES */
+        /* PANTALLA DE JUEGO Y CONTROLES */
         #game-screen {
             display: none;
             position: relative;
@@ -121,13 +117,13 @@
             z-index: 10;
         }
         .btn-control {
-            width: 75px;
-            height: 75px;
+            width: 70px;
+            height: 70px;
             background: rgba(46, 204, 113, 0.85);
             border: 3px solid #ffffff;
             border-radius: 50%;
             color: white;
-            font-size: 30px;
+            font-size: 26px;
             font-weight: bold;
             display: flex;
             align-items: center;
@@ -135,8 +131,10 @@
             cursor: pointer;
             box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
+        .btn-jump {
+            background: rgba(241, 196, 15, 0.9);
+        }
         .btn-control:active {
-            background: rgba(39, 174, 96, 1);
             transform: scale(0.95);
         }
     </style>
@@ -175,33 +173,34 @@
             </div>
         </div>
 
-        <!-- SELECCIONADOR DE ESCENARIOS (STAGE SELECT) -->
+        <!-- SELECCIONADOR DE ESCENARIOS -->
         <div id="stage-select-screen">
             <h2 class="stage-title">STAGE SELECT</h2>
             
             <div class="stage-grid">
-                <!-- Tarjeta Nivel 1 -->
+                <!-- Tarjeta Nivel 1 (Escaleras) -->
                 <div class="stage-card" onclick="cargarMinijuego('escalera')">
-                    <div class="stage-thumb">🏫</div>
+                    <img src="level_stairs.png" alt="Escaleras" class="stage-thumb">
                     <div class="stage-name">1. Escalera UANE</div>
                 </div>
 
-                <!-- Tarjeta Nivel 2 -->
+                <!-- Tarjeta Nivel 2 (Karts) -->
                 <div class="stage-card" onclick="cargarMinijuego('kara')">
-                    <div class="stage-thumb">🏎️</div>
-                    <div class="stage-name">2. Mini Kara</div>
+                    <img src="level_karts.png" alt="Karts" class="stage-thumb">
+                    <div class="stage-name">2. Mini Kara Karts</div>
                 </div>
             </div>
 
             <button class="btn-back" onclick="volverAlMenu()">◀ REGRESAR</button>
         </div>
 
-        <!-- PANTALLA DE JUEGO (CANVAS) -->
+        <!-- PANTALLA DE JUEGO -->
         <div id="game-screen">
             <div id="ui">Puntaje: <span id="score">0</span></div>
             <canvas id="gameCanvas"></canvas>
             <div id="controls">
                 <div class="btn-control" id="btn-left">◀</div>
+                <div class="btn-control btn-jump" id="btn-jump">▲</div>
                 <div class="btn-control" id="btn-right">▶</div>
             </div>
         </div>
