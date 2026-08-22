@@ -3,191 +3,218 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aventuras UANE - Minijuegos</title>
+    <title>Muñeca Mini-Games</title>
+    <link rel="stylesheet" href="style.css">
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #121212;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #ffffff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        #game-container {
-            width: 400px;
-            height: 700px;
-            background: #1e1e1e;
-            border: 4px solid #333;
-            border-radius: 12px;
-            position: relative;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            overflow: hidden;
-        }
-
-        .screen {
+        /* SELECCIONADOR DE ESCENARIOS (MELEE STYLE) */
+        #stage-select-screen {
+            display: none;
             width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 20px;
+            height: 100vh;
+            background: radial-gradient(circle, #1a0933 0%, #05020a 100%);
             box-sizing: border-box;
-            position: absolute;
-            top: 0;
-            left: 0;
+            padding: 20px;
+            text-align: center;
+            color: #fff;
+            font-family: 'Arial Black', sans-serif;
+            position: relative;
         }
 
-        h1 {
+        .stage-title {
             font-size: 28px;
-            margin-bottom: 10px;
-            color: #f1c40f;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
+            letter-spacing: 3px;
+            color: #ff3366;
+            text-shadow: 0 0 10px #ff3366, 2px 2px 0px #000;
+            margin-bottom: 20px;
         }
 
-        p {
-            font-size: 14px;
-            color: #ccc;
-            margin-bottom: 25px;
+        .stage-grid {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            max-width: 650px;
+            margin: 0 auto;
         }
 
-        .btn {
-            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 25px;
+        .stage-card {
+            width: 150px;
+            background: rgba(20, 20, 35, 0.85);
+            border: 3px solid #4a4a75;
+            border-radius: 8px;
+            padding: 8px;
             cursor: pointer;
-            margin: 8px 0;
-            width: 80%;
-            box-shadow: 0 4px 10px rgba(108, 92, 231, 0.4);
-            transition: transform 0.1s ease, background 0.2s ease;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.7);
         }
 
-        .btn:active {
-            transform: scale(0.95);
+        .stage-card:hover, .stage-card:active {
+            border-color: #00e5ff;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px #00e5ff;
         }
 
-        .btn-secondary {
-            background: linear-gradient(135deg, #d63031, #ff7675);
-            box-shadow: 0 4px 10px rgba(214, 48, 49, 0.4);
+        .stage-thumb {
+            width: 100%;
+            height: 110px;
+            object-fit: cover;
+            border-radius: 4px;
+            background: #111;
         }
 
-        /* Pantalla de juego y canvas */
+        .stage-name {
+            font-size: 12px;
+            margin-top: 8px;
+            text-transform: uppercase;
+            color: #e0e0e0;
+            letter-spacing: 1px;
+        }
+
+        .btn-back {
+            margin-top: 25px;
+            padding: 10px 20px;
+            background: #e74c3c;
+            border: 2px solid #fff;
+            color: white;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* PANTALLA DE JUEGO Y CONTROLES */
         #game-screen {
             display: none;
-            padding: 0;
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            background: #1a1a1a;
+            overflow: hidden;
         }
-
-        canvas {
-            background: #000;
+        #gameCanvas {
             display: block;
+            margin: 0 auto;
+            max-width: 100%;
+            max-height: 100vh;
         }
-
         #ui {
             position: absolute;
-            top: 10px;
-            left: 10px;
-            right: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            top: 15px;
+            left: 20px;
+            color: #fff;
+            font-size: 22px;
             font-weight: bold;
-            background: rgba(0, 0, 0, 0.6);
-            padding: 8px 12px;
-            border-radius: 8px;
+            text-shadow: 2px 2px 4px #000;
             z-index: 10;
         }
-
-        #controls-overlay {
+        #controls {
             position: absolute;
-            bottom: 20px;
+            bottom: 25px;
             width: 100%;
             display: flex;
-            justify-content: space-around;
-            padding: 0 20px;
+            justify-content: space-between;
+            padding: 0 30px;
             box-sizing: border-box;
             z-index: 10;
         }
-
-        .ctrl-btn {
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid white;
-            color: white;
-            font-size: 20px;
-            width: 60px;
-            height: 60px;
+        .btn-control {
+            width: 70px;
+            height: 70px;
+            background: rgba(46, 204, 113, 0.85);
+            border: 3px solid #ffffff;
             border-radius: 50%;
+            color: white;
+            font-size: 26px;
+            font-weight: bold;
             display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
             cursor: pointer;
-            user-select: none;
-            backdrop-filter: blur(4px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
-
-        .ctrl-btn:active {
-            background: rgba(255, 255, 255, 0.5);
+        .btn-jump {
+            background: rgba(241, 196, 15, 0.9);
+        }
+        .btn-control:active {
+            transform: scale(0.95);
         }
     </style>
 </head>
 <body>
 
-    <!-- Audio de Fondo del Menú -->
-    <audio id="menu-music" loop muted>
-        <source src="menu_music.mp3" type="audio/mpeg">
-    </audio>
-
     <div id="game-container">
-        
-        <!-- Menú Principal Original -->
+        <!-- MENÚ PRINCIPAL -->
         <div id="main-menu" class="screen">
-            <h1>AVENTURAS UANE</h1>
-            <p>¡Bienvenido! Explora los minijuegos y vive la aventura académica.</p>
-            <button class="btn" onclick="showStageSelect()">Jugar Minijuegos</button>
-            <button class="btn" onclick="startGame('story')">Modo Historia</button>
-            <button class="btn" onclick="openSettings()">Opciones</button>
-        </div>
+            <h1 class="game-title">
+                <span class="animate-word">MUÑECA</span><br>
+                <span class="subtitle">MINI-GAMES</span>
+            </h1>
 
-        <!-- Pantalla de Selección de Niveles -->
-        <div id="stage-select-screen" class="screen" style="display: none;">
-            <h1>SELECCIONA NIVEL</h1>
-            <p>Elige tu desafío favorito:</p>
-            <button class="btn" onclick="cargarMinijuego('escalera')">Nivel 1: Escalera Caracol</button>
-            <button class="btn" onclick="cargarMinijuego('kara')">Nivel 2: Carretera Kara</button>
-            <button class="btn" onclick="cargarMinijuego('clases')">Nivel 3: Clase de Memoria</button>
-            <button class="btn btn-secondary" onclick="volverAlMenu()">Volver al Menú</button>
-        </div>
+            <div class="spacer"></div>
 
-        <!-- Pantalla Activa del Juego (Canvas y Controles) -->
-        <div id="game-screen" class="screen">
-            <div id="ui">
-                <div>Puntaje: <span id="score">0</span></div>
+            <div class="blackboard-scene">
+                <img src="boy_left.png.png" alt="Student" class="character boy-left">
+                
+                <div class="blackboard">
+                    <img src="chalkboard_text.png.png" alt="Chalk Instructions" class="chalk-graphic">
+                    <img src="muneca_prof.png.png" alt="Professor Muñeca" class="professor-muneca">
+                </div>
+                
+                <img src="boy_right.png.png" alt="Student" class="character boy-right">
+            </div>
+
+            <div class="menu-buttons">
+                <button class="btn btn-green" onclick="showStageSelect()">PLAY MINIGAMES</button>
+                <button class="btn btn-yellow" onclick="startGame('story')">THE PLOT: MUÑECA'S STORY</button>
+                <button class="btn btn-blue" onclick="openSettings()">SETTINGS</button>
             </div>
             
-            <canvas id="gameCanvas"></canvas>
-
-            <div id="controls-overlay">
-                <div class="ctrl-btn" id="btn-left">◀</div>
-                <div class="ctrl-btn" id="btn-jump">▲</div>
-                <div class="ctrl-btn" id="btn-right">▶</div>
+            <div class="uane-footer">
+                <img src="uane_logo.png.png" alt="UANE Logo" class="uane-logo">
             </div>
         </div>
 
+        <!-- SELECCIONADOR DE ESCENARIOS -->
+        <div id="stage-select-screen">
+            <h2 class="stage-title">STAGE SELECT</h2>
+            
+            <div class="stage-grid">
+                <!-- Tarjeta Nivel 1 (Escaleras) -->
+                <div class="stage-card" onclick="cargarMinijuego('escalera')">
+                    <img src="level_stairs.png" alt="Escaleras" class="stage-thumb">
+                    <div class="stage-name">1. Escalera UANE</div>
+                </div>
+
+                <!-- Tarjeta Nivel 2 (Karts) -->
+                <div class="stage-card" onclick="cargarMinijuego('kara')">
+                    <img src="level_karts.png" alt="Karts" class="stage-thumb">
+                    <div class="stage-name">2. Mini Kara Karts</div>
+                </div>
+
+                <!-- Tarjeta Nivel 3 (Clase de Memoria / Maestra) -->
+                <div class="stage-card" onclick="cargarMinijuego('clases')">
+                    <img src="muneca_prof.png.png" alt="Clase" class="stage-thumb">
+                    <div class="stage-name">3. Clase de Memoria</div>
+                </div>
+            </div>
+
+            <button class="btn-back" onclick="volverAlMenu()">◀ REGRESAR</button>
+        </div>
+
+        <!-- PANTALLA DE JUEGO -->
+        <div id="game-screen">
+            <div id="ui">Puntaje: <span id="score">0</span></div>
+            <canvas id="gameCanvas"></canvas>
+            <div id="controls">
+                <div class="btn-control" id="btn-left">◀</div>
+                <div class="btn-control btn-jump" id="btn-jump">▲</div>
+                <div class="btn-control" id="btn-right">▶</div>
+            </div>
+        </div>
     </div>
 
-    <!-- Archivo JavaScript principal -->
+    <!-- AUDIO DE FONDO -->
+    <audio id="menu-music" src="menu_theme.mp3.mp3" autoplay muted loop></audio>
+
     <script src="game.js"></script>
 </body>
 </html>
