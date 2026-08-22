@@ -62,7 +62,7 @@ function openSettings() {
 }
 
 // ==========================================
-// 3. MINIJUEGO 1: ESCALERA CARACOL (SPRITE SHEET + OBSTÁCULOS GRANDES)
+// 3. MINIJUEGO 1: ESCALERA CARACOL (VIDAS, TAMAÑO 5X Y VELOCIDAD REDUCIDA)
 // ==========================================
 function iniciarNivelEscalera() {
     const canvas = document.getElementById('gameCanvas');
@@ -74,8 +74,29 @@ function iniciarNivelEscalera() {
 
     let puntaje = 0;
     let juegoActivo = true;
-    let velocidad = 4;
+    let velocidad = 2.0; // Velocidad inicial más lenta y disfrutable
     let bgOffsetY = 0;
+
+    // Sistema de Vidas (10 corazones)
+    let vidas = 10;
+    let tiempoInvulnerable = 0;
+
+    // Crear dinámicamente el contenedor visual de corazones en la esquina superior izquierda
+    let uiContainer = document.getElementById('ui');
+    uiContainer.innerHTML = `
+        <div style="font-size: 14px; margin-bottom: 4px;">Puntaje: <span id="score">0</span></div>
+        <div id="hearts-container" style="font-size: 18px; letter-spacing: 2px; color: #ff3366;">❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️</div>
+    `;
+    const scoreSpan = document.getElementById('score');
+    const heartsContainer = document.getElementById('hearts-container');
+
+    function actualizarCorazonesUI() {
+        let textoCorazones = "";
+        for (let i = 0; i < vidas; i++) {
+            textoCorazones += "❤️";
+        }
+        heartsContainer.innerText = textoCorazones;
+    }
 
     const bgImg = new Image();
     bgImg.src = 'escenario_escalera.png';
@@ -85,7 +106,6 @@ function iniciarNivelEscalera() {
     obsImgs[1].src = 'obs_mochila.png';
     obsImgs[2].src = 'obs_lapiz.png';
 
-    // Carga local de tobias.png en tu PC
     const petSheet = new Image();
     petSheet.src = 'tobias.png';
 
@@ -94,17 +114,17 @@ function iniciarNivelEscalera() {
 
     const jugador = {
         x: carrilesX[carrilActual],
-        yBase: 520,
-        y: 520,
-        ancho: 80,
-        alto: 80,
+        yBase: 440, // Ajustado para el nuevo tamaño de personaje
+        y: 440,
+        ancho: 160,  // Escalado masivo para que la perrita luzca grande y detallada
+        alto: 160,
         vy: 0,
         enSuelo: true,
         frameX: 0,
         animCounter: 0,
         saltar: function() {
             if (this.enSuelo) {
-                this.vy = -14;
+                this.vy = -12;
                 this.enSuelo = false;
             }
         }
@@ -120,18 +140,24 @@ function iniciarNivelEscalera() {
             carril: carrilAleatorio,
             tipo: tipoAleatorio,
             y: 150,
-            escala: 0.2
+            escala: 0.2,
+            golpeado: false
         });
     }
 
     function actualizar() {
         if (!juegoActivo) return;
 
-        velocidad += 0.001;
-        bgOffsetY = (bgOffsetY + velocidad * 2) % canvas.height;
+        // Aceleración mucho más suave y lenta
+        velocidad += 0.0003;
+        bgOffsetY = (bgOffsetY + velocidad * 1.5) % canvas.height;
+
+        if (tiempoInvulnerable > 0) {
+            tiempoInvulnerable--;
+        }
 
         jugador.y += jugador.vy;
-        jugador.vy += 0.75;
+        jugador.vy += 0.6; // Gravedad suave
 
         if (jugador.y >= jugador.yBase) {
             jugador.y = jugador.yBase;
@@ -143,35 +169,46 @@ function iniciarNivelEscalera() {
         if (Math.abs(jugador.x - objetivoX) > 1) {
             jugador.x += (objetivoX - jugador.x) * 0.3;
             jugador.animCounter++;
-            if (jugador.animCounter % 6 === 0) {
+            if (jugador.animCounter % 8 === 0) {
                 jugador.frameX = (jugador.frameX + 1) % 4;
             }
         } else {
             jugador.frameX = 0; 
         }
 
-        if (Math.random() < 0.025) {
-            if (obstaculos.length === 0 || obstaculos[obstaculos.length - 1].y > 280) {
+        if (Math.random() < 0.02) {
+            if (obstaculos.length === 0 || obstaculos[obstaculos.length - 1].y > 320) {
                 crearObstaculo();
             }
         }
 
         for (let i = 0; i < obstaculos.length; i++) {
             let obs = obstaculos[i];
-            obs.y += velocidad * 1.5;
-            obs.escala = 0.2 + (obs.y / 600) * 1.2;
+            obs.y += velocidad * 1.2;
+            obs.escala = 0.2 + (obs.y / 600) * 1.1;
 
-            if (obs.y > 470 && obs.y < 550 && obs.carril === carrilActual && jugador.y > 460) {
-                juegoActivo = false;
-                alert(`¡Oh no! Te tropezaste con el material escolar. Puntaje: ${Math.floor(puntaje)}`);
-                document.location.reload();
+            // Detección de colisión adaptada
+            if (!obs.golpeado && obs.y > 400 && obs.y < 500 && obs.carril === carrilActual && jugador.y > 380) {
+                if (tiempoInvulnerable === 0) {
+                    vidas--;
+                    obs.golpeado = true;
+                    actualizarCorazonesUI();
+                    tiempoInvulnerable = 45; // fotogramas de gracia
+
+                    if (vidas <= 0) {
+                        juegoActivo = false;
+                        alert(`¡Te quedaste sin corazones! Game Over. Puntaje final: ${Math.floor(puntaje)}`);
+                        document.location.reload();
+                        return;
+                    }
+                }
             }
 
             if (obs.y > canvas.height) {
                 obstaculos.splice(i, 1);
                 i--;
-                puntaje += 15;
-                scoreEl.innerText = Math.floor(puntaje);
+                puntaje += 10;
+                if (scoreSpan) scoreSpan.innerText = Math.floor(puntaje);
             }
         }
     }
@@ -202,25 +239,29 @@ function iniciarNivelEscalera() {
         }
 
         const posXJugador = jugador.x - jugador.ancho / 2;
-        if (petSheet.complete && petSheet.naturalWidth !== 0) {
-            const sheetW = petSheet.width / 4;
-            const sheetH = petSheet.height / 3;
-            
-            let filaSprite = 0;
-            if (!jugador.enSuelo) {
-                filaSprite = 0;
-            } else if (Math.abs(jugador.x - carrilesX[carrilActual]) < 1) {
-                filaSprite = 1;
-            }
+        
+        // Efecto parpadeo si está invulnerable tras perder un corazón
+        if (tiempoInvulnerable === 0 || Math.floor(tiempoInvulnerable / 4) % 2 === 0) {
+            if (petSheet.complete && petSheet.naturalWidth !== 0) {
+                const sheetW = petSheet.width / 4;
+                const sheetH = petSheet.height / 3;
+                
+                let filaSprite = 0;
+                if (!jugador.enSuelo) {
+                    filaSprite = 0;
+                } else if (Math.abs(jugador.x - carrilesX[carrilActual]) < 1) {
+                    filaSprite = 1;
+                }
 
-            ctx.drawImage(
-                petSheet,
-                jugador.frameX * sheetW, filaSprite * sheetH, sheetW, sheetH,
-                posXJugador, jugador.y, jugador.ancho, jugador.alto
-            );
-        } else {
-            ctx.fillStyle = "#f1c40f";
-            ctx.fillRect(posXJugador, jugador.y, jugador.ancho, jugador.alto);
+                ctx.drawImage(
+                    petSheet,
+                    jugador.frameX * sheetW, filaSprite * sheetH, sheetW, sheetH,
+                    posXJugador, jugador.y, jugador.ancho, jugador.alto
+                );
+            } else {
+                ctx.fillStyle = "#f1c40f";
+                ctx.fillRect(posXJugador, jugador.y, jugador.ancho, jugador.alto);
+            }
         }
     }
 
@@ -255,7 +296,7 @@ function iniciarMiniKara() {
     canvas.height = 700;
 
     let puntaje = 0;
-    let velocidad = 5;
+    let velocidad = 4;
     let juegoActivo = true;
     let desplazamientoCarretera = 0;
 
@@ -279,7 +320,7 @@ function iniciarMiniKara() {
 
     function actualizar() {
         if (!juegoActivo) return;
-        velocidad += 0.001;
+        velocidad += 0.0008;
         desplazamientoCarretera = (desplazamientoCarretera + velocidad) % 40;
         jugador.x += (carriles[carrilActual] - 35 - jugador.x) * 0.2;
 
