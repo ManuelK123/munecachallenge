@@ -48,7 +48,7 @@
         }
 
         h1 {
-            font-size: 26px;
+            font-size: 28px;
             margin-bottom: 10px;
             color: #f1c40f;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
@@ -84,7 +84,7 @@
             box-shadow: 0 4px 10px rgba(214, 48, 49, 0.4);
         }
 
-        /* Pantalla de juego */
+        /* Pantalla de juego y canvas */
         #game-screen {
             display: none;
             padding: 0;
@@ -144,17 +144,17 @@
 </head>
 <body>
 
-    <!-- Audio de Fondo del Menú (Interactúa para reproducir) -->
+    <!-- Audio de Fondo del Menú -->
     <audio id="menu-music" loop muted>
         <source src="menu_music.mp3" type="audio/mpeg">
     </audio>
 
     <div id="game-container">
         
-        <!-- Menú Principal -->
+        <!-- Menú Principal Original -->
         <div id="main-menu" class="screen">
             <h1>AVENTURAS UANE</h1>
-            <p>Selecciona una opción para comenzar</p>
+            <p>¡Bienvenido! Explora los minijuegos y vive la aventura académica.</p>
             <button class="btn" onclick="showStageSelect()">Jugar Minijuegos</button>
             <button class="btn" onclick="startGame('story')">Modo Historia</button>
             <button class="btn" onclick="openSettings()">Opciones</button>
@@ -163,14 +163,14 @@
         <!-- Pantalla de Selección de Niveles -->
         <div id="stage-select-screen" class="screen" style="display: none;">
             <h1>SELECCIONA NIVEL</h1>
-            <p>Elige tu desafío:</p>
+            <p>Elige tu desafío favorito:</p>
             <button class="btn" onclick="cargarMinijuego('escalera')">Nivel 1: Escalera Caracol</button>
             <button class="btn" onclick="cargarMinijuego('kara')">Nivel 2: Carretera Kara</button>
             <button class="btn" onclick="cargarMinijuego('clases')">Nivel 3: Clase de Memoria</button>
             <button class="btn btn-secondary" onclick="volverAlMenu()">Volver al Menú</button>
         </div>
 
-        <!-- Pantalla Activa del Juego (Canvas) -->
+        <!-- Pantalla Activa del Juego (Canvas y Controles) -->
         <div id="game-screen" class="screen">
             <div id="ui">
                 <div>Puntaje: <span id="score">0</span></div>
