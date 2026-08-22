@@ -344,7 +344,7 @@ function iniciarMiniKara() {
 }
 
 // ==========================================
-// 4. MINIJUEGO 3: CLASE DE MEMORIA (Con la Maestra Dinosaurio)
+// 4. MINIJUEGO 3: CLASE DE MEMORIA (Con Fondo y Dinosaurio Maestro)
 // ==========================================
 function iniciarMinijuegoClases() {
     const canvas = document.getElementById('gameCanvas');
@@ -378,9 +378,13 @@ function iniciarMinijuegoClases() {
 
     const flechasDirecciones = ['ARRIBA', 'ABAJO', 'IZQUIERDA', 'DERECHA'];
 
-    // Cargar la imagen del dinosaurio profesor (dino_prof.png)
+    // Cargar imagen de fondo del salón
+    const bgSalongImg = new Image();
+    bgSalongImg.src = 'escritoriio.PNG';
+
+    // Cargar la imagen del dinosaurio profesor recortando la primera pose de dino_prof1.png
     const dinoProfImg = new Image();
-    dinoProfImg.src = 'dino_prof.png';
+    dinoProfImg.src = 'dino_prof1.png';
 
     function generarNuevaRonda() {
         entradaJugador = [];
@@ -413,21 +417,25 @@ function iniciarMinijuegoClases() {
     function renderizar() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Fondo del Salón
-        ctx.fillStyle = "#f5f6fa";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        // 1. Dibujar el fondo del salón (escritoriio.PNG)
+        if (bgSalongImg.complete && bgSalongImg.naturalWidth !== 0) {
+            ctx.drawImage(bgSalongImg, 0, 0, canvas.width, canvas.height);
+        } else {
+            ctx.fillStyle = "#f5f6fa";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
 
-        // Pizarrón verde
-        ctx.fillStyle = "#273c75";
-        ctx.fillRect(30, 80, 340, 160);
-        ctx.strokeStyle = "#40739e";
+        // 2. Pizarrón verde con marco y texto de la secuencia
+        ctx.fillStyle = "#1e7e34"; // Color verde pizarrón
+        ctx.fillRect(50, 150, 300, 130);
+        ctx.strokeStyle = "#8b5a2b"; // Marco de madera
         ctx.lineWidth = 6;
-        ctx.strokeRect(30, 80, 340, 160);
+        ctx.strokeRect(50, 150, 300, 130);
 
         ctx.fillStyle = "#ffffff";
         ctx.font = "bold 15px sans-serif";
         ctx.textAlign = "center";
-        ctx.fillText(mensajePantalla, canvas.width / 2, 115);
+        ctx.fillText(mensajePantalla, canvas.width / 2, 180);
 
         if (estadoJuego === 'MOSTRAR') {
             let flechaTexto = "";
@@ -439,11 +447,11 @@ function iniciarMinijuegoClases() {
                 if (f === 'DERECHA') flechaTexto += " ➡️ ";
             }
             ctx.font = "22px sans-serif";
-            ctx.fillText(flechaTexto, canvas.width / 2, 170);
+            ctx.fillText(flechaTexto, canvas.width / 2, 230);
         } else if (estadoJuego === 'ESPERAR') {
             ctx.font = "13px sans-serif";
-            ctx.fillStyle = "#e84118";
-            ctx.fillText(`Progreso: ${entradaJugador.length} / ${secuencia.length}`, canvas.width / 2, 160);
+            ctx.fillStyle = "#f1c40f";
+            ctx.fillText(`Progreso: ${entradaJugador.length} / ${secuencia.length}`, canvas.width / 2, 215);
             
             let inputTexto = "";
             for (let f of entradaJugador) {
@@ -453,27 +461,22 @@ function iniciarMinijuegoClases() {
                 if (f === 'DERECHA') inputTexto += "➡️";
             }
             ctx.font = "18px sans-serif";
-            ctx.fillStyle = "#00a8ff";
-            ctx.fillText(inputTexto, canvas.width / 2, 195);
+            ctx.fillStyle = "#00e5ff";
+            ctx.fillText(inputTexto, canvas.width / 2, 245);
         }
 
-        // Escritorio de la profesora
-        ctx.fillStyle = "#875530";
-        ctx.fillRect(100, 280, 200, 80);
-        
-        // Renderizar la Maestra Dinosaurio
+        // 3. Renderizar al Maestro Dinosaurio usando la primera pose de dino_prof1.png
         if (dinoProfImg.complete && dinoProfImg.naturalWidth !== 0) {
-            ctx.drawImage(dinoProfImg, 120, 185, 160, 160);
+            // Recortamos la primera columna (el primer monstruo de la imagen de 3 poses)
+            const anchoIndividual = dinoProfImg.width / 3;
+            const altoIndividual = dinoProfImg.height;
+            ctx.drawImage(dinoProfImg, 0, 0, anchoIndividual, altoIndividual, 120, 320, 160, 160);
         } else {
             ctx.fillStyle = "#2ecc71";
             ctx.beginPath();
-            ctx.arc(200, 260, 40, 0, Math.PI * 2);
+            ctx.arc(200, 380, 40, 0, Math.PI * 2);
             ctx.fill();
         }
-
-        ctx.fillStyle = "#2f3640";
-        ctx.font = "13px sans-serif";
-        ctx.fillText("Usa los botones o flechas del teclado", canvas.width / 2, 420);
     }
 
     function procesarEntrada(direccion) {
