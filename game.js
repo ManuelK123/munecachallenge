@@ -50,6 +50,8 @@ function cargarMinijuego(nombreNivel) {
         iniciarNivelEscalera();
     } else if (nombreNivel === 'kara') {
         iniciarMiniKara();
+    } else if (nombreNivel === 'clases') {
+        iniciarMinijuegoClases();
     }
 }
 
@@ -62,30 +64,27 @@ function openSettings() {
 }
 
 // ==========================================
-// 3. MINIJUEGO 1: ESCALERA CARACOL (VIDAS, TAMAÑO 5X Y VELOCIDAD REDUCIDA)
+// 3. MINIJUEGO 1: ESCALERA CARACOL
 // ==========================================
 function iniciarNivelEscalera() {
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
-    const scoreEl = document.getElementById('score');
 
     canvas.width = 400;
     canvas.height = 700;
 
     let puntaje = 0;
     let juegoActivo = true;
-    let velocidad = 2.0; // Velocidad inicial más lenta y disfrutable
+    let velocidad = 2.0;
     let bgOffsetY = 0;
 
-    // Sistema de Vidas (10 corazones)
     let vidas = 10;
     let tiempoInvulnerable = 0;
 
-    // Crear dinámicamente el contenedor visual de corazones en la esquina superior izquierda
     let uiContainer = document.getElementById('ui');
     uiContainer.innerHTML = `
-        <div style="font-size: 14px; margin-bottom: 4px;">Puntaje: <span id="score">0</span></div>
-        <div id="hearts-container" style="font-size: 18px; letter-spacing: 2px; color: #ff3366;">❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️</div>
+        <div style="font-size: 14px;">Puntaje: <span id="score">0</span></div>
+        <div id="hearts-container" style="font-size: 16px; letter-spacing: 1px; color: #ff3366;">❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️</div>
     `;
     const scoreSpan = document.getElementById('score');
     const heartsContainer = document.getElementById('hearts-container');
@@ -114,9 +113,9 @@ function iniciarNivelEscalera() {
 
     const jugador = {
         x: carrilesX[carrilActual],
-        yBase: 440, // Ajustado para el nuevo tamaño de personaje
+        yBase: 440,
         y: 440,
-        ancho: 160,  // Escalado masivo para que la perrita luzca grande y detallada
+        ancho: 160,
         alto: 160,
         vy: 0,
         enSuelo: true,
@@ -148,16 +147,13 @@ function iniciarNivelEscalera() {
     function actualizar() {
         if (!juegoActivo) return;
 
-        // Aceleración mucho más suave y lenta
         velocidad += 0.0003;
         bgOffsetY = (bgOffsetY + velocidad * 1.5) % canvas.height;
 
-        if (tiempoInvulnerable > 0) {
-            tiempoInvulnerable--;
-        }
+        if (tiempoInvulnerable > 0) tiempoInvulnerable--;
 
         jugador.y += jugador.vy;
-        jugador.vy += 0.6; // Gravedad suave
+        jugador.vy += 0.6;
 
         if (jugador.y >= jugador.yBase) {
             jugador.y = jugador.yBase;
@@ -187,13 +183,12 @@ function iniciarNivelEscalera() {
             obs.y += velocidad * 1.2;
             obs.escala = 0.2 + (obs.y / 600) * 1.1;
 
-            // Detección de colisión adaptada
             if (!obs.golpeado && obs.y > 400 && obs.y < 500 && obs.carril === carrilActual && jugador.y > 380) {
                 if (tiempoInvulnerable === 0) {
                     vidas--;
                     obs.golpeado = true;
                     actualizarCorazonesUI();
-                    tiempoInvulnerable = 45; // fotogramas de gracia
+                    tiempoInvulnerable = 45;
 
                     if (vidas <= 0) {
                         juegoActivo = false;
@@ -240,18 +235,14 @@ function iniciarNivelEscalera() {
 
         const posXJugador = jugador.x - jugador.ancho / 2;
         
-        // Efecto parpadeo si está invulnerable tras perder un corazón
         if (tiempoInvulnerable === 0 || Math.floor(tiempoInvulnerable / 4) % 2 === 0) {
             if (petSheet.complete && petSheet.naturalWidth !== 0) {
                 const sheetW = petSheet.width / 4;
                 const sheetH = petSheet.height / 3;
                 
                 let filaSprite = 0;
-                if (!jugador.enSuelo) {
-                    filaSprite = 0;
-                } else if (Math.abs(jugador.x - carrilesX[carrilActual]) < 1) {
-                    filaSprite = 1;
-                }
+                if (!jugador.enSuelo) filaSprite = 0;
+                else if (Math.abs(jugador.x - carrilesX[carrilActual]) < 1) filaSprite = 1;
 
                 ctx.drawImage(
                     petSheet,
@@ -285,7 +276,7 @@ function iniciarNivelEscalera() {
 }
 
 // ==========================================
-// 4. MINIJUEGO 2: MINI KARA MUÑECA (CARRETERA)
+// 4. MINIJUEGO 2: MINI KARA (CARRETERA)
 // ==========================================
 function iniciarMiniKara() {
     const canvas = document.getElementById('gameCanvas');
@@ -396,6 +387,200 @@ function iniciarMiniKara() {
         if (e.key === 'ArrowLeft' && carrilActual > 0) carrilActual--;
         if (e.key === 'ArrowRight' && carrilActual < 2) carrilActual++;
     };
+
+    loop();
+}
+
+// ==========================================
+// 5. MINIJUEGO 3: CLASE DE MEMORIA (CLEFAIRY SAYS)
+// ==========================================
+function iniciarMinijuegoClases() {
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = 400;
+    canvas.height = 700;
+
+    let vidas = 10;
+    let ronda = 1;
+    let secuencia = [];
+    let entradaJugador = [];
+    let estadoJuego = 'MOSTRAR'; // 'MOSTRAR', 'ESPERAR', 'CORRECTO', 'INCORRECTO'
+    let indiceFlechaActual = 0;
+    let temporizadorMostrar = 0;
+    let mensajePantalla = "¡Atención a la maestra!";
+
+    let uiContainer = document.getElementById('ui');
+    uiContainer.innerHTML = `
+        <div style="font-size: 13px;">Ronda: <span id="round-num">1</span></div>
+        <div id="hearts-container" style="font-size: 15px; letter-spacing: 1px; color: #ff3366;">❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️</div>
+    `;
+    const roundNumEl = document.getElementById('round-num');
+    const heartsContainer = document.getElementById('hearts-container');
+
+    function actualizarCorazonesUI() {
+        let textoCorazones = "";
+        for (let i = 0; i < vidas; i++) {
+            textoCorazones += "❤️";
+        }
+        heartsContainer.innerText = textoCorazones;
+    }
+
+    const flechasDirecciones = ['ARRIBA', 'ABAJO', 'IZQUIERDA', 'DERECHA'];
+
+    function generarNuevaRonda() {
+        entradaJugador = [];
+        const nuevaFlecha = flechasDirecciones[Math.floor(Math.random() * flechasDirecciones.length)];
+        secuencia.push(nuevaFlecha);
+        
+        indiceFlechaActual = 0;
+        estadoJuego = 'MOSTRAR';
+        temporizadorMostrar = 0;
+        mensajePantalla = "¡Memoriza la secuencia!";
+    }
+
+    generarNuevaRonda();
+
+    function actualizar() {
+        if (estadoJuego === 'MOSTRAR') {
+            temporizadorMostrar++;
+            if (temporizadorMostrar > 45) {
+                temporizadorMostrar = 0;
+                indiceFlechaActual++;
+                if (indiceFlechaActual >= secuencia.length) {
+                    estadoJuego = 'ESPERAR';
+                    indiceFlechaActual = 0;
+                    mensajePantalla = "¡Tu turno! Repite las flechas";
+                }
+            }
+        }
+    }
+
+    function renderizar() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Fondo del Salón
+        ctx.fillStyle = "#f5f6fa";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Pizarrón verde
+        ctx.fillStyle = "#273c75";
+        ctx.fillRect(30, 80, 340, 160);
+        ctx.strokeStyle = "#40739e";
+        ctx.lineWidth = 6;
+        ctx.strokeRect(30, 80, 340, 160);
+
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "bold 15px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(mensajePantalla, canvas.width / 2, 115);
+
+        if (estadoJuego === 'MOSTRAR') {
+            let flechaTexto = "";
+            for (let i = 0; i <= indiceFlechaActual && i < secuencia.length; i++) {
+                let f = secuencia[i];
+                if (f === 'ARRIBA') flechaTexto += " ⬆️ ";
+                if (f === 'ABAJO') flechaTexto += " ⬇️ ";
+                if (f === 'IZQUIERDA') flechaTexto += " ⬅️ ";
+                if (f === 'DERECHA') flechaTexto += " ➡️ ";
+            }
+            ctx.font = "22px sans-serif";
+            ctx.fillText(flechaTexto, canvas.width / 2, 170);
+        } else if (estadoJuego === 'ESPERAR') {
+            ctx.font = "13px sans-serif";
+            ctx.fillStyle = "#e84118";
+            ctx.fillText(`Progreso: ${entradaJugador.length} / ${secuencia.length}`, canvas.width / 2, 160);
+            
+            let inputTexto = "";
+            for (let f of entradaJugador) {
+                if (f === 'ARRIBA') inputTexto += "⬆️";
+                if (f === 'ABAJO') inputTexto += "⬇️";
+                if (f === 'IZQUIERDA') inputTexto += "⬅️";
+                if (f === 'DERECHA') inputTexto += "➡️";
+            }
+            ctx.font = "18px sans-serif";
+            ctx.fillStyle = "#00a8ff";
+            ctx.fillText(inputTexto, canvas.width / 2, 195);
+        }
+
+        // Escritorio de la profesora
+        ctx.fillStyle = "#875530";
+        ctx.fillRect(100, 280, 200, 80);
+        
+        // Maestra de lentes grandes
+        ctx.fillStyle = "#ffcccc";
+        ctx.beginPath();
+        ctx.arc(200, 260, 40, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Lentes rojos grandes característicos
+        ctx.strokeStyle = "#e84118";
+        ctx.lineWidth = 4;
+        ctx.strokeRect(175, 245, 22, 15);
+        ctx.strokeRect(203, 245, 22, 15);
+
+        ctx.fillStyle = "#2f3640";
+        ctx.font = "13px sans-serif";
+        ctx.fillText("Usa las flechas del teclado o botones", canvas.width / 2, 420);
+    }
+
+    function procesarEntrada(direccion) {
+        if (estadoJuego !== 'ESPERAR') return;
+
+        entradaJugador.push(direccion);
+        let indiceActual = entradaJugador.length - 1;
+
+        if (entradaJugador[indiceActual] !== secuencia[indiceActual]) {
+            vidas--;
+            actualizarCorazonesUI();
+            mensajePantalla = "¡Error! Te equivocaste ❌";
+            estadoJuego = 'INCORRECTO';
+
+            if (vidas <= 0) {
+                alert(`¡Te quedaste sin corazones en la clase! Game Over. Llegaste a la ronda ${ronda}`);
+                document.location.reload();
+                return;
+            }
+
+            setTimeout(() => {
+                entradaJugador = [];
+                indiceFlechaActual = 0;
+                estadoJuego = 'MOSTRAR';
+                temporizadorMostrar = 0;
+                mensajePantalla = "Repitiendo secuencia...";
+            }, 1200);
+            return;
+        }
+
+        if (entradaJugador.length === secuencia.length) {
+            mensajePantalla = "¡Excelente! Ronda superada 🎉";
+            estadoJuego = 'CORRECTO';
+            ronda++;
+            if (roundNumEl) roundNumEl.innerText = ronda;
+
+            setTimeout(() => {
+                generarNuevaRonda();
+            }, 1500);
+        }
+    }
+
+    // Controles por botones táctiles en pantalla (reasignados para las 4 direcciones del minijuego de memoria)
+    document.getElementById('btn-left').onclick = () => procesarEntrada('IZQUIERDA');
+    document.getElementById('btn-right').onclick = () => procesarEntrada('DERECHA');
+    document.getElementById('btn-jump').onclick = () => procesarEntrada('ARRIBA');
+
+    window.onkeydown = (e) => {
+        if (e.key === 'ArrowUp') procesarEntrada('ARRIBA');
+        if (e.key === 'ArrowDown') procesarEntrada('ABAJO');
+        if (e.key === 'ArrowLeft') procesarEntrada('IZQUIERDA');
+        if (e.key === 'ArrowRight') procesarEntrada('DERECHA');
+    };
+
+    function loop() {
+        actualizar();
+        renderizar();
+        requestAnimationFrame(loop);
+    }
 
     loop();
 }
