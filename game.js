@@ -344,7 +344,7 @@ function iniciarMiniKara() {
 }
 
 // ==========================================
-// 4. MINIJUEGO 3: CLASE DE MEMORIA (Con Fondo y Dinosaurio Maestro)
+// 4. MINIJUEGO 3: CLASE DE MEMORIA (Fondo de Escritorio + Maestro Dinosaurio)
 // ==========================================
 function iniciarMinijuegoClases() {
     const canvas = document.getElementById('gameCanvas');
@@ -378,11 +378,11 @@ function iniciarMinijuegoClases() {
 
     const flechasDirecciones = ['ARRIBA', 'ABAJO', 'IZQUIERDA', 'DERECHA'];
 
-    // Cargar imagen de fondo del salón
+    // Cargar imagen de fondo del salón (escritoriio.PNG)
     const bgSalongImg = new Image();
     bgSalongImg.src = 'escritoriio.PNG';
 
-    // Cargar la imagen del dinosaurio profesor recortando la primera pose de dino_prof1.png
+    // Cargar la imagen del dinosaurio profesor (dino_prof1.png)
     const dinoProfImg = new Image();
     dinoProfImg.src = 'dino_prof1.png';
 
@@ -417,12 +417,9 @@ function iniciarMinijuegoClases() {
     function renderizar() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // 1. Dibujar el fondo del salón (escritoriio.PNG)
+        // 1. Dibujar el fondo del salón (escritoriio.PNG) abarcando toda el área
         if (bgSalongImg.complete && bgSalongImg.naturalWidth !== 0) {
             ctx.drawImage(bgSalongImg, 0, 0, canvas.width, canvas.height);
-        } else {
-            ctx.fillStyle = "#f5f6fa";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
         }
 
         // 2. Pizarrón verde con marco y texto de la secuencia
@@ -467,7 +464,6 @@ function iniciarMinijuegoClases() {
 
         // 3. Renderizar al Maestro Dinosaurio usando la primera pose de dino_prof1.png
         if (dinoProfImg.complete && dinoProfImg.naturalWidth !== 0) {
-            // Recortamos la primera columna (el primer monstruo de la imagen de 3 poses)
             const anchoIndividual = dinoProfImg.width / 3;
             const altoIndividual = dinoProfImg.height;
             ctx.drawImage(dinoProfImg, 0, 0, anchoIndividual, altoIndividual, 120, 320, 160, 160);
