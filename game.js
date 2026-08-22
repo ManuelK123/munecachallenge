@@ -1,34 +1,5 @@
 // ==========================================
-// 1. CONFIGURACIÓN DE AUDIO POR INTERACCIÓN
-// ==========================================
-let audioIniciado = false;
-
-const activarMusicaMenu = () => {
-    if (audioIniciado) return;
-    
-    const music = document.getElementById('menu-music');
-    if (music) {
-        music.volume = 0.4;
-        music.muted = false;
-        music.play().then(() => {
-            audioIniciado = true;
-            console.log("Música del menú iniciada correctamente.");
-        }).catch(error => {
-            console.log("Error al reproducir audio:", error);
-        });
-    }
-
-    window.removeEventListener('click', activarMusicaMenu);
-    window.removeEventListener('touchstart', activarMusicaMenu);
-    window.removeEventListener('keydown', activarMusicaMenu);
-};
-
-window.addEventListener('click', activarMusicaMenu);
-window.addEventListener('touchstart', activarMusicaMenu);
-window.addEventListener('keydown', activarMusicaMenu);
-
-// ==========================================
-// 2. NAVEGACIÓN Y MENÚS
+// 1. GESTIÓN DE MENÚS Y NAVEGACIÓN
 // ==========================================
 function showStageSelect() {
     document.getElementById('main-menu').style.display = 'none';
@@ -43,6 +14,7 @@ function volverAlMenu() {
 function cargarMinijuego(nombreNivel) {
     document.getElementById('stage-select-screen').style.display = 'none';
     document.getElementById('game-screen').style.display = 'block';
+    
     const music = document.getElementById('menu-music');
     if (music) music.pause();
 
@@ -56,15 +28,15 @@ function cargarMinijuego(nombreNivel) {
 }
 
 function startGame(gameType) {
-    if (gameType === 'story') alert("Una historia increíble en el campus de UANE está por comenzar...");
+    if (gameType === 'story') alert("Modo historia en desarrollo...");
 }
 
 function openSettings() {
-    alert("Panel de Opciones de Audio y Gráficos");
+    alert("Panel de configuraciones");
 }
 
 // ==========================================
-// 3. MINIJUEGO 1: ESCALERA CARACOL
+// 2. MINIJUEGO 1: ESCALERA CARACOL (10 Corazones + PJ Grande)
 // ==========================================
 function iniciarNivelEscalera() {
     const canvas = document.getElementById('gameCanvas');
@@ -84,16 +56,14 @@ function iniciarNivelEscalera() {
     let uiContainer = document.getElementById('ui');
     uiContainer.innerHTML = `
         <div style="font-size: 14px;">Puntaje: <span id="score">0</span></div>
-        <div id="hearts-container" style="font-size: 16px; letter-spacing: 1px; color: #ff3366;">❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️</div>
+        <div id="hearts-container" style="font-size: 15px; letter-spacing: 1px; color: #ff3366;">❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️</div>
     `;
     const scoreSpan = document.getElementById('score');
     const heartsContainer = document.getElementById('hearts-container');
 
     function actualizarCorazonesUI() {
         let textoCorazones = "";
-        for (let i = 0; i < vidas; i++) {
-            textoCorazones += "❤️";
-        }
+        for (let i = 0; i < vidas; i++) textoCorazones += "❤️";
         heartsContainer.innerText = textoCorazones;
     }
 
@@ -134,14 +104,7 @@ function iniciarNivelEscalera() {
     function crearObstaculo() {
         const carrilAleatorio = Math.floor(Math.random() * 3);
         const tipoAleatorio = Math.floor(Math.random() * 3);
-        
-        obstaculos.push({
-            carril: carrilAleatorio,
-            tipo: tipoAleatorio,
-            y: 150,
-            escala: 0.2,
-            golpeado: false
-        });
+        obstaculos.push({ carril: carrilAleatorio, tipo: tipoAleatorio, y: 150, escala: 0.2, golpeado: false });
     }
 
     function actualizar() {
@@ -165,11 +128,9 @@ function iniciarNivelEscalera() {
         if (Math.abs(jugador.x - objetivoX) > 1) {
             jugador.x += (objetivoX - jugador.x) * 0.3;
             jugador.animCounter++;
-            if (jugador.animCounter % 8 === 0) {
-                jugador.frameX = (jugador.frameX + 1) % 4;
-            }
+            if (jugador.animCounter % 8 === 0) jugador.frameX = (jugador.frameX + 1) % 4;
         } else {
-            jugador.frameX = 0; 
+            jugador.frameX = 0;
         }
 
         if (Math.random() < 0.02) {
@@ -192,7 +153,7 @@ function iniciarNivelEscalera() {
 
                     if (vidas <= 0) {
                         juegoActivo = false;
-                        alert(`¡Te quedaste sin corazones! Game Over. Puntaje final: ${Math.floor(puntaje)}`);
+                        alert(`¡Game Over! Puntaje final: ${Math.floor(puntaje)}`);
                         document.location.reload();
                         return;
                     }
@@ -221,8 +182,7 @@ function iniciarNivelEscalera() {
 
         for (let obs of obstaculos) {
             const img = obsImgs[obs.tipo];
-            const baseSize = 90;
-            const tamanoActual = baseSize * obs.escala;
+            const tamanoActual = 90 * obs.escala;
             const posX = carrilesX[obs.carril] - tamanoActual / 2;
 
             if (img.complete && img.naturalWidth !== 0) {
@@ -234,21 +194,13 @@ function iniciarNivelEscalera() {
         }
 
         const posXJugador = jugador.x - jugador.ancho / 2;
-        
         if (tiempoInvulnerable === 0 || Math.floor(tiempoInvulnerable / 4) % 2 === 0) {
             if (petSheet.complete && petSheet.naturalWidth !== 0) {
                 const sheetW = petSheet.width / 4;
                 const sheetH = petSheet.height / 3;
-                
-                let filaSprite = 0;
-                if (!jugador.enSuelo) filaSprite = 0;
-                else if (Math.abs(jugador.x - carrilesX[carrilActual]) < 1) filaSprite = 1;
+                let filaSprite = !jugador.enSuelo ? 0 : (Math.abs(jugador.x - carrilesX[carrilActual]) < 1 ? 1 : 0);
 
-                ctx.drawImage(
-                    petSheet,
-                    jugador.frameX * sheetW, filaSprite * sheetH, sheetW, sheetH,
-                    posXJugador, jugador.y, jugador.ancho, jugador.alto
-                );
+                ctx.drawImage(petSheet, jugador.frameX * sheetW, filaSprite * sheetH, sheetW, sheetH, posXJugador, jugador.y, jugador.ancho, jugador.alto);
             } else {
                 ctx.fillStyle = "#f1c40f";
                 ctx.fillRect(posXJugador, jugador.y, jugador.ancho, jugador.alto);
@@ -276,7 +228,7 @@ function iniciarNivelEscalera() {
 }
 
 // ==========================================
-// 4. MINIJUEGO 2: MINI KARA (CARRETERA)
+// 3. MINIJUEGO 2: MINI KARA (CARRETERA)
 // ==========================================
 function iniciarMiniKara() {
     const canvas = document.getElementById('gameCanvas');
@@ -328,7 +280,7 @@ function iniciarMiniKara() {
 
             if (obs.y > 500 && obs.y < 600 && obs.carril === carrilActual) {
                 juegoActivo = false;
-                alert(`¡Choque en la carretera! Puntaje: ${Math.floor(puntaje)}`);
+                alert(`¡Choque! Puntaje: ${Math.floor(puntaje)}`);
                 document.location.reload();
             }
 
@@ -392,7 +344,7 @@ function iniciarMiniKara() {
 }
 
 // ==========================================
-// 5. MINIJUEGO 3: CLASE DE MEMORIA (CLEFAIRY SAYS)
+// 4. MINIJUEGO 3: CLASE DE MEMORIA (Con la Maestra Dinosaurio)
 // ==========================================
 function iniciarMinijuegoClases() {
     const canvas = document.getElementById('gameCanvas');
@@ -405,10 +357,10 @@ function iniciarMinijuegoClases() {
     let ronda = 1;
     let secuencia = [];
     let entradaJugador = [];
-    let estadoJuego = 'MOSTRAR'; // 'MOSTRAR', 'ESPERAR', 'CORRECTO', 'INCORRECTO'
+    let estadoJuego = 'MOSTRAR'; 
     let indiceFlechaActual = 0;
     let temporizadorMostrar = 0;
-    let mensajePantalla = "¡Atención a la maestra!";
+    let mensajePantalla = "¡Atención a la clase!";
 
     let uiContainer = document.getElementById('ui');
     uiContainer.innerHTML = `
@@ -420,13 +372,15 @@ function iniciarMinijuegoClases() {
 
     function actualizarCorazonesUI() {
         let textoCorazones = "";
-        for (let i = 0; i < vidas; i++) {
-            textoCorazones += "❤️";
-        }
+        for (let i = 0; i < vidas; i++) textoCorazones += "❤️";
         heartsContainer.innerText = textoCorazones;
     }
 
     const flechasDirecciones = ['ARRIBA', 'ABAJO', 'IZQUIERDA', 'DERECHA'];
+
+    // Cargar la imagen del dinosaurio profesor (dino_prof.png)
+    const dinoProfImg = new Image();
+    dinoProfImg.src = 'dino_prof.png';
 
     function generarNuevaRonda() {
         entradaJugador = [];
@@ -507,21 +461,19 @@ function iniciarMinijuegoClases() {
         ctx.fillStyle = "#875530";
         ctx.fillRect(100, 280, 200, 80);
         
-        // Maestra de lentes grandes
-        ctx.fillStyle = "#ffcccc";
-        ctx.beginPath();
-        ctx.arc(200, 260, 40, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Lentes rojos grandes característicos
-        ctx.strokeStyle = "#e84118";
-        ctx.lineWidth = 4;
-        ctx.strokeRect(175, 245, 22, 15);
-        ctx.strokeRect(203, 245, 22, 15);
+        // Renderizar la Maestra Dinosaurio
+        if (dinoProfImg.complete && dinoProfImg.naturalWidth !== 0) {
+            ctx.drawImage(dinoProfImg, 120, 185, 160, 160);
+        } else {
+            ctx.fillStyle = "#2ecc71";
+            ctx.beginPath();
+            ctx.arc(200, 260, 40, 0, Math.PI * 2);
+            ctx.fill();
+        }
 
         ctx.fillStyle = "#2f3640";
         ctx.font = "13px sans-serif";
-        ctx.fillText("Usa las flechas del teclado o botones", canvas.width / 2, 420);
+        ctx.fillText("Usa los botones o flechas del teclado", canvas.width / 2, 420);
     }
 
     function procesarEntrada(direccion) {
@@ -537,7 +489,7 @@ function iniciarMinijuegoClases() {
             estadoJuego = 'INCORRECTO';
 
             if (vidas <= 0) {
-                alert(`¡Te quedaste sin corazones en la clase! Game Over. Llegaste a la ronda ${ronda}`);
+                alert(`¡Game Over en clase! Llegaste a la ronda ${ronda}`);
                 document.location.reload();
                 return;
             }
@@ -564,7 +516,7 @@ function iniciarMinijuegoClases() {
         }
     }
 
-    // Controles por botones táctiles en pantalla (reasignados para las 4 direcciones del minijuego de memoria)
+    // Controles para las 4 direcciones del minijuego de memoria
     document.getElementById('btn-left').onclick = () => procesarEntrada('IZQUIERDA');
     document.getElementById('btn-right').onclick = () => procesarEntrada('DERECHA');
     document.getElementById('btn-jump').onclick = () => procesarEntrada('ARRIBA');
