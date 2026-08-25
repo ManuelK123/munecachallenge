@@ -6,7 +6,6 @@
     <title>Muñeca Mini-Games</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* SELECCIONADOR DE ESCENARIOS (MELEE STYLE) */
         #stage-select-screen {
             display: none;
             width: 100%;
@@ -81,7 +80,6 @@
             cursor: pointer;
         }
 
-        /* PANTALLA DE JUEGO Y CONTROLES */
         #game-screen {
             display: none;
             position: relative;
@@ -178,31 +176,27 @@
             <h2 class="stage-title">STAGE SELECT</h2>
             
             <div class="stage-grid">
-                <!-- Tarjeta Nivel 1 (Escaleras) -->
                 <div class="stage-card" onclick="cargarMinijuego('escalera')">
                     <img src="level_stairs.png" alt="Escaleras" class="stage-thumb">
                     <div class="stage-name">1. Escalera UANE</div>
                 </div>
 
-                <!-- Tarjeta Nivel 2 (Karts) -->
                 <div class="stage-card" onclick="cargarMinijuego('kara')">
                     <img src="level_karts.png" alt="Karts" class="stage-thumb">
                     <div class="stage-name">2. Mini Kara Karts</div>
                 </div>
 
-                <!-- Tarjeta Nivel 3 (Clase de Memoria) -->
                 <div class="stage-card" onclick="cargarMinijuego('clases')">
                     <img src="dino_prof.png" alt="Clase" class="stage-thumb">
                     <div class="stage-name">3. Clase de Memoria</div>
                 </div>
 
-                <!-- Tarjeta Nivel 5 (Cascada) -->
                 <div class="stage-card" onclick="cargarMinijuego('cascada')">
                     <img src="cascada_fondo_1.png" alt="Cascada" class="stage-thumb" onerror="this.src='level_stairs.png'">
                     <div class="stage-name">5. Cascada de Barriles</div>
                 </div>
 
-                <!-- Tarjeta Nivel 6 (Cascada Abismo) -->
+                <!-- NUEVA TARJETA NIVEL 6 -->
                 <div class="stage-card" onclick="cargarMinijuego('nivel6')">
                     <img src="cascada_fondo_1.png" alt="Nivel 6 Cascada" class="stage-thumb" onerror="this.src='level_stairs.png'">
                     <div class="stage-name">6. Cascada Abismo</div>
