@@ -33,8 +33,9 @@ function startGame(gameType) {
     if (gameType === 'story') alert("Modo historia en desarrollo...");
 }
 
-function openSettings() {
-    alert("Panel de configuraciones");
+// NUEVA FUNCIÓN DE PAGO
+function abrirSeccionPago() {
+    window.location.href = "pago.html";
 }
 
 // ==========================================
