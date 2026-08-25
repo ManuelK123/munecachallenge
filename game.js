@@ -35,13 +35,12 @@ function startGame(gameType) {
     if (gameType === 'story') alert("Modo historia en desarrollo...");
 }
 
-// NUEVA FUNCIÓN DE PAGO
 function abrirSeccionPago() {
     window.location.href = "pago.html";
 }
 
 // ==========================================
-// 2. MINIJUEGO 1: ESCALERA CARACOL (10 Corazones + PJ Grande)
+// 2. MINIJUEGO 1: ESCALERA CARACOL
 // ==========================================
 function iniciarNivelEscalera() {
     const canvas = document.getElementById('gameCanvas');
@@ -537,7 +536,7 @@ function iniciarMinijuegoClases() {
 }
 
 // ==========================================
-// 5. MINIJUEGO 5: CASCADA DE BARRILES
+// 5. MINIJUEGO 5: CASCADA DE BARRILES (ORIGINAL)
 // ==========================================
 function iniciarMinijuegoCascada() {
     const canvas = document.getElementById('gameCanvas');
@@ -761,7 +760,7 @@ function iniciarMinijuegoCascada() {
 }
 
 // ==========================================
-// 6. MINIJUEGO 6: CASCADA ABISMO (NIVEL 6)
+// 6. MINIJUEGO 6: CASCADA CON LOS 4 CUADROS
 // ==========================================
 function iniciarNivel6Cascada() {
     const canvas = document.getElementById('gameCanvas');
@@ -788,21 +787,6 @@ function iniciarNivel6Cascada() {
         heartsContainer.innerText = textoCorazones;
     }
 
-    const bgCascada = new Image();
-    bgCascada.src = 'cascada_fondo_1.png';
-
-    const imgPlataforma = new Image();
-    imgPlataforma.src = 'plataforma_larga.png';
-
-    const imgBarrilSprite = new Image();
-    imgBarrilSprite.src = 'barril_sprite.png';
-
-    const imgPuenteMeta = new Image();
-    imgPuenteMeta.src = 'puente_meta.png';
-
-    const petSheet = new Image();
-    petSheet.src = 'tobias.png';
-
     const jugador = {
         x: 180,
         y: 520,
@@ -815,22 +799,23 @@ function iniciarNivel6Cascada() {
         animCounter: 0
     };
 
+    // Estructura adaptada estrictamente a los 4 cuadros indicados:
     let plataformas = [
-        { x: 30, y: 580, ancho: 340, alto: 30, tipo: 'puente' },
-        { x: 80, y: 440, ancho: 140, alto: 22, tipo: 'tronco' },
-        { x: 180, y: 310, ancho: 140, alto: 22, tipo: 'tronco' },
-        { x: 80, y: 180, ancho: 140, alto: 22, tipo: 'tronco' },
-        { x: 60, y: 70, ancho: 280, alto: 35, tipo: 'meta' }
+        { x: 30, y: 580, ancho: 340, alto: 30, tipo: 'puente' }, // Cuadro B (Puente horizontal inicial que colapsa)
+        { x: 70, y: 440, ancho: 120, alto: 22, tipo: 'barril' },  // Cuadro C (Plataforma roja / barril)
+        { x: 210, y: 310, ancho: 120, alto: 22, tipo: 'barril' }, // Cuadro C (Plataforma roja / barril)
+        { x: 90, y: 180, ancho: 120, alto: 22, tipo: 'barril' },  // Cuadro C (Plataforma roja / barril)
+        { x: 60, y: 70, ancho: 280, alto: 35, tipo: 'meta' }      // Puente superior final de llegada
     ];
 
-    let barriles = [];
+    let barrilesFlotantes = [];
 
-    function crearBarril() {
-        barriles.push({
-            x: Math.random() * 260 + 70,
+    function crearBarrilFlotante() {
+        barrilesFlotantes.push({
+            x: Math.random() * 240 + 80,
             y: -30,
             radio: 16,
-            velocidadY: Math.random() * 2 + 3.5
+            velocidadY: Math.random() * 1.5 + 3
         });
     }
 
@@ -854,6 +839,7 @@ function iniciarNivel6Cascada() {
         jugador.y += jugador.vy;
         jugador.enSuelo = false;
 
+        // Colisiones con plataformas (Cuadro B y Cuadro C)
         for (let p of plataformas) {
             if (
                 jugador.x + jugador.ancho > p.x &&
@@ -866,57 +852,61 @@ function iniciarNivel6Cascada() {
                 jugador.vy = 0;
                 jugador.enSuelo = true;
 
+                // El Cuadro B (Puente base) colapsa/desaparece tras pisarlo un instante
                 if (p.tipo === 'puente') {
                     setTimeout(() => {
-                        p.y = 9999;
-                    }, 400);
+                        p.y = 9999; 
+                    }, 350);
                 }
             }
         }
 
         tiempoCreacion++;
-        if (tiempoCreacion > 65) {
-            crearBarril();
+        if (tiempoCreacion > 70) {
+            crearBarrilFlotante();
             tiempoCreacion = 0;
         }
 
-        for (let i = 0; i < barriles.length; i++) {
-            let b = barriles[i];
+        // Obstáculos de caída opcionales
+        for (let i = 0; i < barrilesFlotantes.length; i++) {
+            let b = barrilesFlotantes[i];
             b.y += b.velocidadY;
 
             let distX = (jugador.x + jugador.ancho / 2) - b.x;
             let distY = (jugador.y + jugador.alto / 2) - b.y;
             let distancia = Math.sqrt(distX * distX + distY * distY);
 
-            if (distancia < b.radio + 24) {
+            if (distancia < b.radio + 22) {
                 vidas--;
                 actualizarCorazonesUI();
-                barriles.splice(i, 1);
+                barrilesFlotantes.splice(i, 1);
                 i--;
 
                 if (vidas <= 0) {
                     juegoActivo = false;
-                    alert("¡Te golpeó un barril! Game Over.");
+                    alert("¡Te golpeó un objeto! Game Over.");
                     document.location.reload();
                     return;
                 }
             }
 
             if (b.y > canvas.height + 40) {
-                barriles.splice(i, 1);
+                barrilesFlotantes.splice(i, 1);
                 i--;
                 puntaje += 15;
                 if (scoreSpan) scoreSpan.innerText = puntaje;
             }
         }
 
+        // Meta superior
         let meta = plataformas[plataformas.length - 1];
         if (jugador.y <= meta.y && jugador.x + jugador.ancho > meta.x && jugador.x < meta.x + meta.ancho) {
             juegoActivo = false;
-            alert("¡Increíble! Llegaste arriba del puente con éxito. Puntaje final: " + puntaje);
+            alert("¡Increíble! Subiste con éxito por la cascada. Puntaje final: " + puntaje);
             document.location.reload();
         }
 
+        // Si cae al fondo / agua
         if (jugador.y > canvas.height) {
             juegoActivo = false;
             alert("¡Caíste al agua! Game Over.");
@@ -927,56 +917,43 @@ function iniciarNivel6Cascada() {
     function renderizar() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // CUADRO A: Background amarillo general de pantalla
-        ctx.fillStyle = "#f1c40f";
+        // ==========================================
+        // CUADRO A: Background completo de color amarillo
+        // ==========================================
+        ctx.fillStyle = "#f1c40f"; 
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        if (bgCascada.complete && bgCascada.naturalWidth !== 0) {
-            ctx.drawImage(bgCascada, 0, 0, canvas.width, canvas.height);
-        }
-
-        // CUADRO B: Puentes y plataformas horizontales (Azules o textura)
+        // ==========================================
+        // CUADRO B y otros: Puente horizontal y Meta
+        // ==========================================
         for (let i = 0; i < plataformas.length; i++) {
             let p = plataformas[i];
-            if (p.tipo === 'meta') {
-                if (imgPuenteMeta.complete && imgPuenteMeta.naturalWidth !== 0) {
-                    ctx.drawImage(imgPuenteMeta, p.x, p.y - 10, p.ancho, p.alto + 15);
-                } else {
-                    ctx.fillStyle = "#8e44ad";
-                    ctx.fillRect(p.x, p.y, p.ancho, p.alto);
-                }
-            } else {
-                if (imgPlataforma.complete && imgPlataforma.naturalWidth !== 0) {
-                    ctx.drawImage(imgPlataforma, p.x, p.y, p.ancho, p.alto);
-                } else {
-                    ctx.fillStyle = "#2980b9";
-                    ctx.fillRect(p.x, p.y, p.ancho, p.alto);
-                }
+            if (p.tipo === 'puente') {
+                ctx.fillStyle = "#2980b9"; // CUADRO B: Color azul (puente horizontal base)
+                ctx.fillRect(p.x, p.y, p.ancho, p.alto);
+            } else if (p.tipo === 'barril') {
+                ctx.fillStyle = "#e74c3c"; // CUADRO C: Color rojo (plataformas de salto estilo barril)
+                ctx.fillRect(p.x, p.y, p.ancho, p.alto);
+                // Detalles visuales en la plataforma roja
+                ctx.fillStyle = "#c0392b";
+                ctx.fillRect(p.x, p.y + 6, p.ancho, p.alto - 12);
+            } else if (p.tipo === 'meta') {
+                ctx.fillStyle = "#8e44ad"; // Puente superior de llegada
+                ctx.fillRect(p.x, p.y, p.ancho, p.alto);
             }
         }
 
-        // CUADRO C: Barriles y plataformas pequeñas (Rojas)
-        for (let b of barriles) {
-            if (imgBarrilSprite.complete && imgBarrilSprite.naturalWidth !== 0) {
-                ctx.drawImage(imgBarrilSprite, b.x - 20, b.y - 20, 40, 40);
-            } else {
-                ctx.fillStyle = "#e74c3c";
-                ctx.beginPath();
-                ctx.arc(b.x, b.y, b.radio, 0, Math.PI * 2);
-                ctx.fill();
-            }
+        // Dibujar elementos flotantes adicionales
+        for (let b of barrilesFlotantes) {
+            ctx.fillStyle = "#c0392b";
+            ctx.beginPath();
+            ctx.arc(b.x, b.y, b.radio, 0, Math.PI * 2);
+            ctx.fill();
         }
 
-        const posXJugador = jugador.x;
-        if (petSheet.complete && petSheet.naturalWidth !== 0) {
-            const sheetW = petSheet.width / 4;
-            const sheetH = petSheet.height / 3;
-            let filaSprite = !jugador.enSuelo ? 0 : 1;
-            ctx.drawImage(petSheet, jugador.frameX * sheetW, filaSprite * sheetH, sheetW, sheetH, posXJugador, jugador.y - 10, jugador.ancho, jugador.alto);
-        } else {
-            ctx.fillStyle = "#d35400";
-            ctx.fillRect(posXJugador, jugador.y, jugador.ancho, jugador.alto);
-        }
+        // Dibujar personaje (Perrita / Jugador)
+        ctx.fillStyle = "#d35400";
+        ctx.fillRect(jugador.x, jugador.y, jugador.ancho, jugador.alto);
     }
 
     function loop() {
@@ -985,6 +962,7 @@ function iniciarNivel6Cascada() {
         if (juegoActivo) requestAnimationFrame(loop);
     }
 
+    // Controles
     document.getElementById('btn-left').onclick = () => { jugador.vx = -3.5; };
     document.getElementById('btn-right').onclick = () => { jugador.vx = 3.5; };
     document.getElementById('btn-jump').onclick = () => {
