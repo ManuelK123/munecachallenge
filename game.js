@@ -26,6 +26,8 @@ function cargarMinijuego(nombreNivel) {
         iniciarMinijuegoClases();
     } else if (nombreNivel === 'cascada') {
         iniciarMinijuegoCascada();
+    } else if (nombreNivel === 'nivel6') {
+        iniciarNivel6Cascada();
     }
 }
 
@@ -562,7 +564,6 @@ function iniciarMinijuegoCascada() {
         heartsContainer.innerText = textoCorazones;
     }
 
-    // Carga de imágenes de la cascada
     const bgCascada = new Image();
     bgCascada.src = 'cascada_fondo_1.png';
 
@@ -575,7 +576,6 @@ function iniciarMinijuegoCascada() {
     const imgPuente = new Image();
     imgPuente.src = 'puente_meta.png';
 
-    // Jugador (Personaje escalando)
     const jugador = {
         x: 100,
         y: 600,
@@ -586,13 +586,12 @@ function iniciarMinijuegoCascada() {
         enSuelo: false
     };
 
-    // Plataformas y Meta
     const plataformas = [
-        { x: 0, y: 640, ancho: 400, alto: 60 }, // Suelo base
-        { x: 50, y: 500, ancho: 220, alto: 25 }, // Tronco intermedio 1
-        { x: 130, y: 360, ancho: 220, alto: 25 }, // Tronco intermedio 2
-        { x: 50, y: 220, ancho: 220, alto: 25 }, // Tronco intermedio 3
-        { x: 200, y: 90, ancho: 160, alto: 30 }  // Puente de meta superior
+        { x: 0, y: 640, ancho: 400, alto: 60 },
+        { x: 50, y: 500, ancho: 220, alto: 25 },
+        { x: 130, y: 360, ancho: 220, alto: 25 },
+        { x: 50, y: 220, ancho: 220, alto: 25 },
+        { x: 200, y: 90, ancho: 160, alto: 30 }
     ];
 
     let barriles = [];
@@ -611,17 +610,14 @@ function iniciarMinijuegoCascada() {
     function actualizar() {
         if (!juegoActivo) return;
 
-        // Movimiento horizontal
         jugador.x += jugador.vx;
         if (jugador.x < 0) jugador.x = 0;
         if (jugador.x + jugador.ancho > canvas.width) jugador.x = canvas.width - jugador.ancho;
 
-        // Gravedad y saltos
         jugador.vy += 0.4;
         jugador.y += jugador.vy;
         jugador.enSuelo = false;
 
-        // Colisiones con plataformas
         for (let p of plataformas) {
             if (
                 jugador.x + jugador.ancho > p.x &&
@@ -636,19 +632,16 @@ function iniciarMinijuegoCascada() {
             }
         }
 
-        // Generar barriles
         tiempoCreacion++;
         if (tiempoCreacion > 70) {
             crearBarril();
             tiempoCreacion = 0;
         }
 
-        // Mover y verificar barriles
         for (let i = 0; i < barriles.length; i++) {
             let b = barriles[i];
             b.y += b.velocidadY;
 
-            // Colisión jugador con barril
             let distX = (jugador.x + jugador.ancho / 2) - b.x;
             let distY = (jugador.y + jugador.alto / 2) - b.y;
             let distancia = Math.sqrt(distX * distX + distY * distY);
@@ -675,14 +668,12 @@ function iniciarMinijuegoCascada() {
             }
         }
 
-        // Victoria al llegar al puente superior
         if (jugador.y <= 120 && jugador.x >= 180 && jugador.x <= 340) {
             juegoActivo = false;
             alert("¡Felicidades! Superaste la cascada. Puntaje: " + puntaje);
             document.location.reload();
         }
 
-        // Derrota si cae al vacio
         if (jugador.y > canvas.height) {
             juegoActivo = false;
             alert("¡Caíste al agua! Game Over.");
@@ -693,7 +684,6 @@ function iniciarMinijuegoCascada() {
     function renderizar() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // 1. Fondo Cascada
         if (bgCascada.complete && bgCascada.naturalWidth !== 0) {
             ctx.drawImage(bgCascada, 0, 0, canvas.width, canvas.height);
         } else {
@@ -701,11 +691,9 @@ function iniciarMinijuegoCascada() {
             ctx.fillRect(0, 0, canvas.width, canvas.height);
         }
 
-        // 2. Plataformas (Troncos y Puente final)
         for (let i = 0; i < plataformas.length; i++) {
             let p = plataformas[i];
             if (i === plataformas.length - 1) {
-                // Dibujar puente de meta
                 if (imgPuente.complete && imgPuente.naturalWidth !== 0) {
                     ctx.drawImage(imgPuente, p.x, p.y - 10, p.width, p.height + 15);
                 } else {
@@ -713,7 +701,6 @@ function iniciarMinijuegoCascada() {
                     ctx.fillRect(p.x, p.y, p.width, p.height);
                 }
             } else {
-                // Dibujar tronco largo
                 if (imgPlataforma.complete && imgPlataforma.naturalWidth !== 0) {
                     ctx.drawImage(imgPlataforma, p.x, p.y, p.width, p.height);
                 } else {
@@ -723,7 +710,6 @@ function iniciarMinijuegoCascada() {
             }
         }
 
-        // 3. Barriles cayendo
         for (let b of barriles) {
             if (imgBarrilSprite.complete && imgBarrilSprite.naturalWidth !== 0) {
                 ctx.drawImage(imgBarrilSprite, b.x - 20, b.y - 20, 40, 40);
@@ -735,7 +721,6 @@ function iniciarMinijuegoCascada() {
             }
         }
 
-        // 4. Jugador
         ctx.fillStyle = "#f1c40f";
         ctx.fillRect(jugador.x, jugador.y, jugador.ancho, jugador.alto);
     }
@@ -746,7 +731,6 @@ function iniciarMinijuegoCascada() {
         if (juegoActivo) requestAnimationFrame(loop);
     }
 
-    // Controles táctiles y teclado para Cascada
     document.getElementById('btn-left').onclick = () => { jugador.vx = -3; };
     document.getElementById('btn-right').onclick = () => { jugador.vx = 3; };
     document.getElementById('btn-jump').onclick = () => {
@@ -756,7 +740,6 @@ function iniciarMinijuegoCascada() {
         }
     };
 
-    // Soltar botones de movimiento
     document.getElementById('btn-left').onmouseup = () => { if (jugador.vx < 0) jugador.vx = 0; };
     document.getElementById('btn-right').onmouseup = () => { if (jugador.vx > 0) jugador.vx = 0; };
 
@@ -765,6 +748,260 @@ function iniciarMinijuegoCascada() {
         if (e.key === 'ArrowRight') jugador.vx = 3;
         if ((e.key === 'ArrowUp' || e.key === ' ') && jugador.enSuelo) {
             jugador.vy = -9;
+            jugador.enSuelo = false;
+        }
+    };
+
+    window.onkeyup = (e) => {
+        if (e.key === 'ArrowLeft' && jugador.vx < 0) jugador.vx = 0;
+        if (e.key === 'ArrowRight' && jugador.vx > 0) jugador.vx = 0;
+    };
+
+    loop();
+}
+
+// ==========================================
+// 6. MINIJUEGO 6: CASCADA ABISMO (NIVEL 6)
+// ==========================================
+function iniciarNivel6Cascada() {
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = 400;
+    canvas.height = 700;
+
+    let puntaje = 0;
+    let juegoActivo = true;
+    let vidas = 5;
+
+    let uiContainer = document.getElementById('ui');
+    uiContainer.innerHTML = `
+        <div style="font-size: 13px;">Ascenso Nivel 6: <span id="score">0</span></div>
+        <div id="hearts-container" style="font-size: 15px; letter-spacing: 1px; color: #ff3366;">❤❤❤❤❤</div>
+    `;
+    const scoreSpan = document.getElementById('score');
+    const heartsContainer = document.getElementById('hearts-container');
+
+    function actualizarCorazonesUI() {
+        let textoCorazones = "";
+        for (let i = 0; i < vidas; i++) textoCorazones += "❤️";
+        heartsContainer.innerText = textoCorazones;
+    }
+
+    const bgCascada = new Image();
+    bgCascada.src = 'cascada_fondo_1.png';
+
+    const imgPlataforma = new Image();
+    imgPlataforma.src = 'plataforma_larga.png';
+
+    const imgBarrilSprite = new Image();
+    imgBarrilSprite.src = 'barril_sprite.png';
+
+    const imgPuenteMeta = new Image();
+    imgPuenteMeta.src = 'puente_meta.png';
+
+    const petSheet = new Image();
+    petSheet.src = 'tobias.png';
+
+    const jugador = {
+        x: 180,
+        y: 520,
+        ancho: 80,
+        alto: 80,
+        vx: 0,
+        vy: 0,
+        enSuelo: false,
+        frameX: 0,
+        animCounter: 0
+    };
+
+    let plataformas = [
+        { x: 30, y: 580, ancho: 340, alto: 30, tipo: 'puente' },
+        { x: 80, y: 440, ancho: 140, alto: 22, tipo: 'tronco' },
+        { x: 180, y: 310, ancho: 140, alto: 22, tipo: 'tronco' },
+        { x: 80, y: 180, ancho: 140, alto: 22, tipo: 'tronco' },
+        { x: 60, y: 70, ancho: 280, alto: 35, tipo: 'meta' }
+    ];
+
+    let barriles = [];
+
+    function crearBarril() {
+        barriles.push({
+            x: Math.random() * 260 + 70,
+            y: -30,
+            radio: 16,
+            velocidadY: Math.random() * 2 + 3.5
+        });
+    }
+
+    let tiempoCreacion = 0;
+
+    function actualizar() {
+        if (!juegoActivo) return;
+
+        jugador.x += jugador.vx;
+        if (jugador.x < 10) jugador.x = 10;
+        if (jugador.x + jugador.ancho > canvas.width - 10) jugador.x = canvas.width - jugador.ancho - 10;
+
+        if (jugador.vx !== 0) {
+            jugador.animCounter++;
+            if (jugador.animCounter % 6 === 0) jugador.frameX = (jugador.frameX + 1) % 4;
+        } else {
+            jugador.frameX = 0;
+        }
+
+        jugador.vy += 0.45;
+        jugador.y += jugador.vy;
+        jugador.enSuelo = false;
+
+        for (let p of plataformas) {
+            if (
+                jugador.x + jugador.ancho > p.x &&
+                jugador.x < p.x + p.ancho &&
+                jugador.y + jugador.alto >= p.y &&
+                jugador.y + jugador.alto <= p.y + p.vy + 8 &&
+                jugador.vy >= 0
+            ) {
+                jugador.y = p.y - jugador.alto;
+                jugador.vy = 0;
+                jugador.enSuelo = true;
+
+                if (p.tipo === 'puente') {
+                    setTimeout(() => {
+                        p.y = 9999;
+                    }, 400);
+                }
+            }
+        }
+
+        tiempoCreacion++;
+        if (tiempoCreacion > 65) {
+            crearBarril();
+            tiempoCreacion = 0;
+        }
+
+        for (let i = 0; i < barriles.length; i++) {
+            let b = barriles[i];
+            b.y += b.velocidadY;
+
+            let distX = (jugador.x + jugador.ancho / 2) - b.x;
+            let distY = (jugador.y + jugador.alto / 2) - b.y;
+            let distancia = Math.sqrt(distX * distX + distY * distY);
+
+            if (distancia < b.radio + 24) {
+                vidas--;
+                actualizarCorazonesUI();
+                barriles.splice(i, 1);
+                i--;
+
+                if (vidas <= 0) {
+                    juegoActivo = false;
+                    alert("¡Te golpeó un barril! Game Over.");
+                    document.location.reload();
+                    return;
+                }
+            }
+
+            if (b.y > canvas.height + 40) {
+                barriles.splice(i, 1);
+                i--;
+                puntaje += 15;
+                if (scoreSpan) scoreSpan.innerText = puntaje;
+            }
+        }
+
+        let meta = plataformas[plataformas.length - 1];
+        if (jugador.y <= meta.y && jugador.x + jugador.ancho > meta.x && jugador.x < meta.x + meta.ancho) {
+            juegoActivo = false;
+            alert("¡Increíble! Llegaste arriba del puente con éxito. Puntaje final: " + puntaje);
+            document.location.reload();
+        }
+
+        if (jugador.y > canvas.height) {
+            juegoActivo = false;
+            alert("¡Caíste al agua! Game Over.");
+            document.location.reload();
+        }
+    }
+
+    function renderizar() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // CUADRO A: Background amarillo general de pantalla
+        ctx.fillStyle = "#f1c40f";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        if (bgCascada.complete && bgCascada.naturalWidth !== 0) {
+            ctx.drawImage(bgCascada, 0, 0, canvas.width, canvas.height);
+        }
+
+        // CUADRO B: Puentes y plataformas horizontales (Azules o textura)
+        for (let i = 0; i < plataformas.length; i++) {
+            let p = plataformas[i];
+            if (p.tipo === 'meta') {
+                if (imgPuenteMeta.complete && imgPuenteMeta.naturalWidth !== 0) {
+                    ctx.drawImage(imgPuenteMeta, p.x, p.y - 10, p.ancho, p.alto + 15);
+                } else {
+                    ctx.fillStyle = "#8e44ad";
+                    ctx.fillRect(p.x, p.y, p.ancho, p.alto);
+                }
+            } else {
+                if (imgPlataforma.complete && imgPlataforma.naturalWidth !== 0) {
+                    ctx.drawImage(imgPlataforma, p.x, p.y, p.ancho, p.alto);
+                } else {
+                    ctx.fillStyle = "#2980b9";
+                    ctx.fillRect(p.x, p.y, p.ancho, p.alto);
+                }
+            }
+        }
+
+        // CUADRO C: Barriles y plataformas pequeñas (Rojas)
+        for (let b of barriles) {
+            if (imgBarrilSprite.complete && imgBarrilSprite.naturalWidth !== 0) {
+                ctx.drawImage(imgBarrilSprite, b.x - 20, b.y - 20, 40, 40);
+            } else {
+                ctx.fillStyle = "#e74c3c";
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, b.radio, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        const posXJugador = jugador.x;
+        if (petSheet.complete && petSheet.naturalWidth !== 0) {
+            const sheetW = petSheet.width / 4;
+            const sheetH = petSheet.height / 3;
+            let filaSprite = !jugador.enSuelo ? 0 : 1;
+            ctx.drawImage(petSheet, jugador.frameX * sheetW, filaSprite * sheetH, sheetW, sheetH, posXJugador, jugador.y - 10, jugador.ancho, jugador.alto);
+        } else {
+            ctx.fillStyle = "#d35400";
+            ctx.fillRect(posXJugador, jugador.y, jugador.ancho, jugador.alto);
+        }
+    }
+
+    function loop() {
+        actualizar();
+        renderizar();
+        if (juegoActivo) requestAnimationFrame(loop);
+    }
+
+    document.getElementById('btn-left').onclick = () => { jugador.vx = -3.5; };
+    document.getElementById('btn-right').onclick = () => { jugador.vx = 3.5; };
+    document.getElementById('btn-jump').onclick = () => {
+        if (jugador.enSuelo) {
+            jugador.vy = -10;
+            jugador.enSuelo = false;
+        }
+    };
+
+    document.getElementById('btn-left').onmouseup = () => { if (jugador.vx < 0) jugador.vx = 0; };
+    document.getElementById('btn-right').onmouseup = () => { if (jugador.vx > 0) jugador.vx = 0; };
+
+    window.onkeydown = (e) => {
+        if (e.key === 'ArrowLeft') jugador.vx = -3.5;
+        if (e.key === 'ArrowRight') jugador.vx = 3.5;
+        if ((e.key === 'ArrowUp' || e.key === ' ') && jugador.enSuelo) {
+            jugador.vy = -10;
             jugador.enSuelo = false;
         }
     };
