@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apoya el Juego de Muñeca</title>
+    <style>
+        body {
+            background-color: #1a0933;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .pay-card {
+            background: rgba(20, 20, 35, 0.95);
+            border: 3px solid #00e5ff;
+            border-radius: 12px;
+            padding: 25px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
+        }
+        h2 { color: #ff3366; margin-top: 0; }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: 1px solid #4a4a75;
+            box-sizing: border-box;
+            background: #0d061a;
+            color: #fff;
+            font-size: 16px;
+        }
+        .btn-pay {
+            width: 100%;
+            padding: 12px;
+            background: #2ecc71;
+            border: none;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .info-deposito {
+            display: none;
+            margin-top: 20px;
+            text-align: left;
+            background: #0d061a;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px dashed #ff3366;
+        }
+        .btn-back {
+            background: #e74c3c;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="pay-card">
+    <h2>🎮 ACCESO COMPLETO AL JUEGO</h2>
+    <p>Apoya el proyecto de la mascota 🐶 <b>Muñeca</b></p>
+
+    <!-- FORMULARIO DE REGISTRO -->
+    <!-- Si usas Formspree, pon tu enlace aquí. Si no, borra el action y method -->
+    <form id="payForm" action="https://formspree.io/f/TU_FORM_ID" method="POST">
+        <input type="text" name="Nombre" placeholder="Tu Nombre Completo" required>
+        <input type="text" name="Matricula_Grupo" placeholder="Matrícula o Grupo" required>
+        <input type="hidden" name="Hora_Registro" id="horaCampo">
+        
+        <button type="submit" class="btn-pay">VER DATOS DE PAGO ($30 MXN)</button>
+    </form>
+
+    <!-- DATOS DE TRANSFERENCIA/OXXO -->
+    <div id="datosPago" class="info-deposito">
+        <h3>💳 Datos para Depósito / Transferencia</h3>
+        <p><b>Banco / Tarjeta:</b> Spin by OXXO (o tu banco)</p>
+        <p><b>CLABE Interbancaria:</b> 0000 0000 0000 0000 00</p>
+        <p><b>Tarjeta OXXO:</b> 0000 0000 0000 0000</p>
+        <p><b>Monto:</b> $30.00 MXN</p>
+        <hr>
+        <p style="font-size: 13px; color: #f1c40f;">
+            ⚠️ <b>Paso final:</b> Toma captura de tu comprobante y envíala al WhatsApp de administración para validar tu acceso.
+        </p>
+    </div>
+
+    <button class="btn-pay btn-back" onclick="window.location.href='index.html'">◀ REGRESAR AL JUEGO</button>
+</div>
+
+<script>
+    // Asignar hora exacta del intento de pago de manera oculta
+    document.getElementById('horaCampo').value = new Date().toLocaleString();
+
+    // Mostrar datos al enviar
+    const form = document.getElementById('payForm');
+    form.addEventListener('submit', function(e) {
+        
+        // Descomenta la siguiente línea (e.preventDefault();) si NO estás usando Formspree aún y solo quieres probar visualmente que aparezcan los datos.
+        // e.preventDefault(); 
+
+        setTimeout(() => {
+            document.getElementById('datosPago').style.display = 'block';
+        }, 500);
+    });
+</script>
+
+</body>
+</html>
