@@ -24,6 +24,8 @@ function cargarMinijuego(nombreNivel) {
         iniciarMiniKara();
     } else if (nombreNivel === 'clases') {
         iniciarMinijuegoClases();
+    } else if (nombreNivel === 'cascada') {
+        iniciarNivelCascada();
     }
 }
 
@@ -344,7 +346,7 @@ function iniciarMiniKara() {
 }
 
 // ==========================================
-// 4. MINIJUEGO 3: CLASE DE MEMORIA (Fondo de Escritorio + Maestro Dinosaurio)
+// 4. MINIJUEGO 3: CLASE DE MEMORIA
 // ==========================================
 function iniciarMinijuegoClases() {
     const canvas = document.getElementById('gameCanvas');
@@ -378,11 +380,9 @@ function iniciarMinijuegoClases() {
 
     const flechasDirecciones = ['ARRIBA', 'ABAJO', 'IZQUIERDA', 'DERECHA'];
 
-    // Cargar imagen de fondo del salón (escritoriio.png)
     const bgSalongImg = new Image();
     bgSalongImg.src = 'escritoriio.png';
 
-    // Cargar la imagen del dinosaurio profesor (dino_prof1.png)
     const dinoProfImg = new Image();
     dinoProfImg.src = 'dino_prof1.png';
 
@@ -417,7 +417,6 @@ function iniciarMinijuegoClases() {
     function renderizar() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // 1. Dibujar el fondo del salón (escritoriio.png) ocupando toda la pantalla
         if (bgSalongImg.complete && bgSalongImg.naturalWidth !== 0) {
             ctx.drawImage(bgSalongImg, 0, 0, canvas.width, canvas.height);
         } else {
@@ -425,7 +424,6 @@ function iniciarMinijuegoClases() {
             ctx.fillRect(0, 0, canvas.width, canvas.height);
         }
 
-        // 2. Textos y secuencia ubicados sobre el pizarrón original de la imagen
         ctx.fillStyle = "#ffffff";
         ctx.font = "bold 15px sans-serif";
         ctx.textAlign = "center";
@@ -461,9 +459,8 @@ function iniciarMinijuegoClases() {
             ctx.fillText(inputTexto, canvas.width / 2, 240);
         }
         
-        ctx.shadowBlur = 0; // Limpiar sombra
+        ctx.shadowBlur = 0;
 
-        // 3. Renderizar al Maestro Dinosaurio frente al estrado
         if (dinoProfImg.complete && dinoProfImg.naturalWidth !== 0) {
             const anchoIndividual = dinoProfImg.width / 3;
             const altoIndividual = dinoProfImg.height;
@@ -516,7 +513,6 @@ function iniciarMinijuegoClases() {
         }
     }
 
-    // Controles para las 4 direcciones del minijuego de memoria
     document.getElementById('btn-left').onclick = () => procesarEntrada('IZQUIERDA');
     document.getElementById('btn-right').onclick = () => procesarEntrada('DERECHA');
     document.getElementById('btn-jump').onclick = () => procesarEntrada('ARRIBA');
@@ -533,6 +529,137 @@ function iniciarMinijuegoClases() {
         renderizar();
         requestAnimationFrame(loop);
     }
+
+    loop();
+}
+
+// ==========================================
+// 5. MINIJUEGO 5: LA CASCADA (NIVEL 5)
+// ==========================================
+function iniciarNivelCascada() {
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = 400;
+    canvas.height = 700;
+
+    let puntaje = 0;
+    let juegoActivo = true;
+    let frameCascadaActual = 0;
+    let contadorAnimacion = 0;
+
+    let vidas = 5;
+    let uiContainer = document.getElementById('ui');
+    uiContainer.innerHTML = `
+        <div style="font-size: 14px;">Puntaje: <span id="score">0</span></div>
+        <div id="hearts-container" style="font-size: 15px; letter-spacing: 1px; color: #ff3366;">❤️❤️❤️❤️❤️</div>
+    `;
+    const scoreSpan = document.getElementById('score');
+    const heartsContainer = document.getElementById('hearts-container');
+
+    function actualizarCorazonesUI() {
+        let textoCorazones = "";
+        for (let i = 0; i < vidas; i++) textoCorazones += "❤️";
+        heartsContainer.innerText = textoCorazones;
+    }
+
+    const cascadaFrames = [new Image(), new Image(), new Image(), new Image(), new Image()];
+    cascadaFrames[0].src = 'cascada_frame1.png';
+    cascadaFrames[1].src = 'cascada_frame2.png';
+    cascadaFrames[2].src = 'cascada_frame3.png';
+    cascadaFrames[3].src = 'cascada_frame4.png';
+    cascadaFrames[4].src = 'cascada_frame5.png';
+
+    const petSheet = new Image();
+    petSheet.src = 'tobias.png';
+
+    const carrilesX = [120, 200, 280];
+    let carrilActual = 1;
+
+    const jugador = {
+        x: carrilesX[carrilActual],
+        yBase: 440,
+        y: 440,
+        ancho: 120,
+        alto: 120,
+        vy: 0,
+        enSuelo: true,
+        saltar: function() {
+            if (this.enSuelo) {
+                this.vy = -10;
+                this.enSuelo = false;
+            }
+        }
+    };
+
+    function actualizar() {
+        if (!juegoActivo) return;
+
+        contadorAnimacion++;
+        if (contadorAnimacion % 6 === 0) {
+            frameCascadaActual = (frameCascadaActual + 1) % 5;
+        }
+
+        jugador.y += jugador.vy;
+        jugador.vy += 0.6;
+
+        if (jugador.y >= jugador.yBase) {
+            jugador.y = jugador.yBase;
+            jugador.vy = 0;
+            jugador.enSuelo = true;
+        }
+
+        const objetivoX = carrilesX[carrilActual];
+        if (Math.abs(jugador.x - objetivoX) > 1) {
+            jugador.x += (objetivoX - jugador.x) * 0.3;
+        }
+
+        puntaje += 0.1;
+        if (scoreSpan) scoreSpan.innerText = Math.floor(puntaje);
+    }
+
+    function renderizar() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const imgFondoActual = cascadaFrames[frameCascadaActual];
+        if (imgFondoActual.complete && imgFondoActual.naturalWidth !== 0) {
+            ctx.drawImage(imgFondoActual, 0, 0, canvas.width, canvas.height);
+        } else {
+            ctx.fillStyle = "#091e2b";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        ctx.fillStyle = "#2c3e50";
+        ctx.fillRect(50, 480, 300, 25);
+        ctx.fillStyle = "#27ae60";
+        ctx.fillRect(50, 475, 300, 10);
+
+        const posXJugador = jugador.x - jugador.ancho / 2;
+        if (petSheet.complete && petSheet.naturalWidth !== 0) {
+            const sheetW = petSheet.width / 4;
+            const sheetH = petSheet.height / 3;
+            ctx.drawImage(petSheet, 0, 0, sheetW, sheetH, posXJugador, jugador.y - 40, jugador.ancho, jugador.alto);
+        } else {
+            ctx.fillStyle = "#f1c40f";
+            ctx.fillRect(posXJugador, jugador.y - 40, jugador.ancho, jugador.alto);
+        }
+    }
+
+    function loop() {
+        actualizar();
+        renderizar();
+        if (juegoActivo) requestAnimationFrame(loop);
+    }
+
+    document.getElementById('btn-left').onclick = () => { if (carrilActual > 0) carrilActual--; };
+    document.getElementById('btn-right').onclick = () => { if (carrilActual < 2) carrilActual++; };
+    document.getElementById('btn-jump').onclick = () => jugador.saltar();
+
+    window.onkeydown = (e) => {
+        if (e.key === 'ArrowLeft' && carrilActual > 0) carrilActual--;
+        if (e.key === 'ArrowRight' && carrilActual < 2) carrilActual++;
+        if (e.key === ' ' || e.key === 'ArrowUp') jugador.saltar();
+    };
 
     loop();
 }
