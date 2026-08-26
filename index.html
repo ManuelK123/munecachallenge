@@ -3,229 +3,224 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Muñeca Mini-Games</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Aventuras Caninas - Selección de Niveles</title>
     <style>
-        #stage-select-screen {
-            display: none;
-            width: 100%;
-            height: 100vh;
-            background: radial-gradient(circle, #1a0933 0%, #05020a 100%);
-            box-sizing: border-box;
-            padding: 20px;
-            text-align: center;
-            color: #fff;
-            font-family: 'Arial Black', sans-serif;
-            position: relative;
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #12051d;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
         }
 
-        .stage-title {
-            font-size: 28px;
-            letter-spacing: 3px;
-            color: #ff3366;
-            text-shadow: 0 0 10px #ff3366, 2px 2px 0px #000;
+        #main-menu, #stage-select-screen {
+            text-align: center;
+            width: 100%;
+            max-width: 480px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        #stage-select-screen {
+            display: none;
+        }
+
+        h1 {
+            font-size: 26px;
+            color: #f1c40f;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .menu-btn {
+            background-color: #e67e22;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 18px;
+            border-radius: 25px;
+            cursor: pointer;
+            margin: 10px 0;
+            width: 80%;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            transition: 0.2s;
+        }
+
+        .menu-btn:hover {
+            background-color: #d35400;
+            transform: scale(1.05);
+        }
+
+        /* Estilos para el selector de escenarios tipo cuadrícula */
+        .stages-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
             margin-bottom: 20px;
         }
 
-        .stage-grid {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
-            max-width: 650px;
-            margin: 0 auto;
-        }
-
         .stage-card {
-            width: 150px;
-            background: rgba(20, 20, 35, 0.85);
-            border: 3px solid #4a4a75;
-            border-radius: 8px;
-            padding: 8px;
+            background-color: #2c1b4d;
+            border: 2px solid #8e44ad;
+            border-radius: 12px;
+            padding: 10px;
             cursor: pointer;
-            transition: all 0.2s ease-in-out;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.7);
+            transition: 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        .stage-card:hover, .stage-card:active {
-            border-color: #00e5ff;
-            transform: scale(1.05);
-            box-shadow: 0 0 15px #00e5ff;
+        .stage-card:hover {
+            border-color: #f1c40f;
+            transform: translateY(-3px);
+            background-color: #382463;
         }
 
         .stage-thumb {
             width: 100%;
-            height: 110px;
+            height: 90px;
             object-fit: cover;
-            border-radius: 4px;
-            background: #111;
+            border-radius: 8px;
+            background-color: #444;
         }
 
         .stage-name {
-            font-size: 12px;
             margin-top: 8px;
-            text-transform: uppercase;
-            color: #e0e0e0;
-            letter-spacing: 1px;
-        }
-
-        .btn-back {
-            margin-top: 25px;
-            padding: 10px 20px;
-            background: #e74c3c;
-            border: 2px solid #fff;
-            color: white;
+            font-size: 14px;
             font-weight: bold;
-            border-radius: 5px;
-            cursor: pointer;
+            color: #ecf0f1;
         }
 
+        /* Pantalla de juego */
         #game-screen {
             display: none;
+            text-align: center;
             position: relative;
-            width: 100%;
-            height: 100vh;
-            background: #1a1a1a;
-            overflow: hidden;
         }
-        #gameCanvas {
-            display: block;
-            margin: 0 auto;
-            max-width: 100%;
-            max-height: 100vh;
-        }
+
         #ui {
-            position: absolute;
-            top: 15px;
-            left: 20px;
-            color: #fff;
-            font-size: 22px;
-            font-weight: bold;
-            text-shadow: 2px 2px 4px #000;
-            z-index: 10;
-        }
-        #controls {
-            position: absolute;
-            bottom: 25px;
-            width: 100%;
             display: flex;
             justify-content: space-between;
-            padding: 0 30px;
+            align-items: center;
+            width: 400px;
+            margin: 0 auto 5px auto;
+            padding: 0 5px;
             box-sizing: border-box;
-            z-index: 10;
         }
+
+        canvas {
+            border: 4px solid #f1c40f;
+            border-radius: 10px;
+            background-color: #000;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.6);
+            display: block;
+            margin: 0 auto;
+        }
+
+        #controls {
+            display: flex;
+            justify-content: space-between;
+            width: 400px;
+            margin: 15px auto 0 auto;
+            box-sizing: border-box;
+            padding: 0 10px;
+        }
+
         .btn-control {
-            width: 65px;
-            height: 65px;
-            background: rgba(46, 204, 113, 0.85);
-            border: 3px solid #ffffff;
-            border-radius: 50%;
+            background-color: #34495e;
             color: white;
-            font-size: 24px;
-            font-weight: bold;
+            border: 2px solid #bdc3c7;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 22px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
             user-select: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
-        .btn-jump {
-            background: rgba(241, 196, 15, 0.9);
-        }
+
         .btn-control:active {
+            background-color: #2c3e50;
             transform: scale(0.95);
+        }
+
+        .btn-jump {
+            background-color: #e74c3c;
+            border-color: #c0392b;
+            border-radius: 15px;
+            width: 75px;
         }
     </style>
 </head>
 <body>
 
-    <div id="game-container">
-        <!-- MENÚ PRINCIPAL -->
-        <div id="main-menu" class="screen">
-            <h1 class="game-title">
-                <span class="animate-word">MUÑECA</span><br>
-                <span class="subtitle">MINI-GAMES</span>
-            </h1>
+    <!-- MENÚ PRINCIPAL -->
+    <div id="main-menu">
+        <h1>AVENTURAS CANINAS</h1>
+        <button class="menu-btn" onclick="showStageSelect()">JUGAR</button>
+        <button class="menu-btn" onclick="startGame('story')">MODO HISTORIA</button>
+        <button class="menu-btn" onclick="abrirSeccionPago()">TIENDA / PAGOS</button>
+    </div>
 
-            <div class="spacer"></div>
-
-            <div class="blackboard-scene">
-                <img src="boy_left.png.png" alt="Student" class="character boy-left">
-                
-                <div class="blackboard">
-                    <img src="chalkboard_text.png.png" alt="Chalk Instructions" class="chalk-graphic">
-                    <img src="muneca_prof.png.png" alt="Professor Muñeca" class="professor-muneca">
-                </div>
-                
-                <img src="boy_right.png.png" alt="Student" class="character boy-right">
+    <!-- SELECCIÓN DE NIVELES (MAPAS) -->
+    <div id="stage-select-screen">
+        <h1>SELECCIONA UN ESCENARIO</h1>
+        <div class="stages-grid">
+            <div class="stage-card" onclick="cargarMinijuego('escalera')">
+                <img src="escenario_escalera.png" alt="Escalera" class="stage-thumb" onerror="this.src='escenario_escalera.png'">
+                <div class="stage-name">1. Escalera Caracol</div>
             </div>
-
-            <div class="menu-buttons">
-                <button class="btn btn-green" onclick="showStageSelect()">PLAY MINIGAMES</button>
-                <button class="btn btn-yellow" onclick="startGame('story')">THE PLOT: MUÑECA'S STORY</button>
-                <button class="btn btn-blue" onclick="abrirSeccionPago()">PAGO</button>
+            <div class="stage-card" onclick="cargarMinijuego('kara')">
+                <img src="boy_left.png.png" alt="Carretera Kara" class="stage-thumb" onerror="this.src='chalkboard_text.png.png'">
+                <div class="stage-name">2. Carretera Kara</div>
             </div>
-            
-            <div class="uane-footer">
-                <img src="uane_logo.png.png" alt="UANE Logo" class="uane-logo">
+            <div class="stage-card" onclick="cargarMinijuego('clases')">
+                <img src="escritoriio.png" alt="Clase" class="stage-thumb" onerror="this.src='dino_prof1.png'">
+                <div class="stage-name">3. Clase de Memoria</div>
+            </div>
+            <div class="stage-card" onclick="cargarMinijuego('cascada')">
+                <img src="cascada_fondo_1.png" alt="Cascada" class="stage-thumb" onerror="this.src='plataforma_larga.png'">
+                <div class="stage-name">4. Cascada Original</div>
+            </div>
+            <div class="stage-card" onclick="cargarMinijuego('nivel6')">
+                <img src="plataforma_larga.png" alt="Nivel 6" class="stage-thumb" onerror="this.src='barril_sprite.png'">
+                <div class="stage-name">5. Cascada Cuadros</div>
+            </div>
+            <!-- TARJETA NIVEL 7 (MAPA ZONA OESTE) -->
+            <div class="stage-card" onclick="cargarMinijuego('nivel7')">
+                <img src="hd.jpg" alt="Mapa Zona Oeste" class="stage-thumb" onerror="this.src='level_stairs.png'">
+                <div class="stage-name">7. Mapa Zona Oeste</div>
             </div>
         </div>
+        <button class="menu-btn" onclick="volverAlMenu()" style="width: 50%; font-size: 15px; padding: 8px;">Volver</button>
+    </div>
 
-        <!-- SELECCIONADOR DE ESCENARIOS -->
-        <div id="stage-select-screen">
-            <h2 class="stage-title">STAGE SELECT</h2>
-            
-            <div class="stage-grid">
-                <div class="stage-card" onclick="cargarMinijuego('escalera')">
-                    <img src="level_stairs.png" alt="Escaleras" class="stage-thumb">
-                    <div class="stage-name">1. Escalera UANE</div>
-                </div>
-
-                <div class="stage-card" onclick="cargarMinijuego('kara')">
-                    <img src="level_karts.png" alt="Karts" class="stage-thumb">
-                    <div class="stage-name">2. Mini Kara Karts</div>
-                </div>
-
-                <div class="stage-card" onclick="cargarMinijuego('clases')">
-                    <img src="dino_prof.png" alt="Clase" class="stage-thumb">
-                    <div class="stage-name">3. Clase de Memoria</div>
-                </div>
-
-                <div class="stage-card" onclick="cargarMinijuego('cascada')">
-                    <img src="cascada_fondo_1.png" alt="Cascada" class="stage-thumb" onerror="this.src='level_stairs.png'">
-                    <div class="stage-name">5. Cascada de Barriles</div>
-                </div>
-
-                <div class="stage-card" onclick="cargarMinijuego('nivel6')">
-                    <img src="cascada_fondo_1.png" alt="Nivel 6" class="stage-thumb" onerror="this.src='level_stairs.png'">
-                    <div class="stage-name">6. Cascada Abismo</div>
-                </div>
-
-                <!-- NUEVA TARJETA NIVEL 7 (MAPA ZONA OESTE) -->
-                <div class="stage-card" onclick="cargarMinijuego('nivel7')">
-                    <img src="hd.jpg" alt="Mapa Zona Oeste" class="stage-thumb" onerror="this.src='level_stairs.png'">
-                    <div class="stage-name">7. Mapa Zona Oeste</div>
-                </div>
-            </div>
-
-            <button class="btn-back" onclick="volverAlMenu()">◀ REGRESAR</button>
-        </div>
-
-        <!-- PANTALLA DE JUEGO -->
-        <div id="game-screen">
-            <div id="ui">Puntaje: <span id="score">0</span></div>
-            <canvas id="gameCanvas"></canvas>
-            <div id="controls">
-                <div class="btn-control" id="btn-left">◀</div>
-                <div class="btn-control btn-jump" id="btn-jump">▲</div>
-                <div class="btn-control" id="btn-right">▶</div>
-            </div>
+    <!-- PANTALLA DE JUEGO (LIENTZO Y CONTROLES TÁCTILES) -->
+    <div id="game-screen">
+        <div id="ui"></div>
+        <canvas id="gameCanvas"></canvas>
+        <div id="controls">
+            <div class="btn-control" id="btn-left">◀</div>
+            <div class="btn-control" id="btn-jump">▲</div>
+            <div class="btn-control" id="btn-right">▶</div>
         </div>
     </div>
 
-    <audio id="menu-music" src="menu_theme.mp3.mp3" autoplay muted loop></audio>
+    <!-- AUDIO DE MENÚ OPCIONAL -->
+    <audio id="menu-music" loop>
+        <source src="menu_music.mp3" type="audio/mpeg">
+    </audio>
 
+    <!-- ENLAZAR EL SCRIPT EXTERNO -->
     <script src="game.js"></script>
 </body>
 </html>
