@@ -1007,15 +1007,12 @@ function iniciarNivel7EscaleraMapa() {
         heartsContainer.innerText = textoCorazones;
     }
 
-    // Imagen del mapa (hd.jpg)
     const mapaEscolarImg = new Image();
     mapaEscolarImg.src = 'hd.jpg';
 
-    // Sprite PNG del perrito cartoon (tobiaspapersss.png)
     const perroCartoonSheet = new Image();
     perroCartoonSheet.src = 'tobiaspapersss.png';
 
-    // Objeto del Jugador
     const jugador = {
         x: 180,
         y: 530,
@@ -1027,20 +1024,16 @@ function iniciarNivel7EscaleraMapa() {
         frameX: 0,
         animCounter: 0,
         saltar: function() {
-            // Acción de salto en el mapa libre
             tiempoInvulnerable = Math.max(tiempoInvulnerable, 15);
         }
     };
 
-    // ==========================================
-    // TOPES FÍSICOS (Zonas bloqueadas / Edificios de la imagen hd.jpg)
-    // ==========================================
     const topesFisicos = [
-        { x: 35, y: 300, ancho: 160, alto: 140 },  // Edificio izquierdo (rojo)
-        { x: 225, y: 260, ancho: 145, alto: 165 }, // Edificio derecho (escuela principal)
-        { x: 180, y: 380, ancho: 60, alto: 80 },   // Zona central trasera
-        { x: 0, y: 0, ancho: 400, alto: 210 },     // Límite superior del mapa
-        { x: 0, y: 630, ancho: 400, alto: 70 }     // Límite inferior del mapa
+        { x: 35, y: 300, ancho: 160, alto: 140 },  
+        { x: 225, y: 260, ancho: 145, alto: 165 }, 
+        { x: 180, y: 380, ancho: 60, alto: 80 },   
+        { x: 0, y: 0, ancho: 400, alto: 210 },     
+        { x: 0, y: 630, ancho: 400, alto: 70 }     
     ];
 
     function comprobarColision(nx, ny) {
@@ -1052,7 +1045,7 @@ function iniciarNivel7EscaleraMapa() {
                 hitboxJugador.y < tope.y + tope.alto &&
                 hitboxJugador.y + hitboxJugador.alto > tope.y
             ) {
-                return true; // Choca con un edificio o límite
+                return true; 
             }
         }
         return false;
@@ -1077,19 +1070,16 @@ function iniciarNivel7EscaleraMapa() {
 
         if (tiempoInvulnerable > 0) tiempoInvulnerable--;
 
-        // Movimiento Horizontal con topes
         let nuevoX = jugador.x + jugador.vx;
         if (!comprobarColision(nuevoX, jugador.y)) {
             jugador.x = nuevoX;
         }
 
-        // Movimiento Vertical con topes
         let nuevoY = jugador.y + jugador.vy;
         if (!comprobarColision(jugador.x, nuevoY)) {
             jugador.y = nuevoY;
         }
 
-        // Animación del perrito cartoon
         if (jugador.vx !== 0 || jugador.vy !== 0) {
             jugador.animCounter++;
             if (jugador.animCounter % 8 === 0) {
@@ -1140,7 +1130,6 @@ function iniciarNivel7EscaleraMapa() {
     function renderizar() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // 1. Dibujar el mapa escolar (hd.jpg) exactamente como fondo
         if (mapaEscolarImg.complete && mapaEscolarImg.naturalWidth !== 0) {
             ctx.drawImage(mapaEscolarImg, 0, 150, canvas.width, 420);
         } else {
@@ -1148,13 +1137,11 @@ function iniciarNivel7EscaleraMapa() {
             ctx.fillRect(0, 0, canvas.width, canvas.height);
         }
 
-        // 2. Dibujar elementos u obstáculos en el mapa
         for (let obs of obstaculosEscuela) {
             ctx.fillStyle = "#e74c3c";
             ctx.fillRect(obs.x, obs.y, obs.ancho, obs.alto);
         }
 
-        // 3. Dibujar al perrito cartoon (.png)
         if (tiempoInvulnerable === 0 || Math.floor(tiempoInvulnerable / 4) % 2 === 0) {
             if (perroCartoonSheet.complete && perroCartoonSheet.naturalWidth !== 0) {
                 const sheetW = perroCartoonSheet.width / 4;
@@ -1177,9 +1164,6 @@ function iniciarNivel7EscaleraMapa() {
         if (juegoActivo) requestAnimationFrame(loop);
     }
 
-    // ==========================================
-    // CONTROLES TÁCTILES Y DE TECLADO (DIRECCIONALES + SALTO)
-    // ==========================================
     const controlsContainer = document.getElementById('controls');
     controlsContainer.innerHTML = `
         <div style="display: flex; gap: 4px; align-items: center;">
