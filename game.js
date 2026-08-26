@@ -1,5 +1,5 @@
 // ==========================================
-// 7. MINIJUEGO 7: MAPA ZONA OESTE (HD, PIO A AL Z, CÁMARA MÓVIL Y FADES)
+// 7. MINIJUEGO 7: MAPA ZONA OESTE (HD, MÚSICA, VELOCIDAD PROGRESIVA Y FADES)
 // ==========================================
 function iniciarNivel7EscaleraMapa() {
     const canvas = document.getElementById('gameCanvas');
@@ -12,22 +12,30 @@ function iniciarNivel7EscaleraMapa() {
     let vidas = 10;
     let tiempoInvulnerable = 0;
 
-    // Secuencia completa de escenarios: HD (inicial con colisiones a edificios) -> pioa -> piob -> pioc -> pioz
+    // Reproducir la música del menú principal desde el comienzo
+    const menuMusic = document.getElementById('menu-music');
+    if (menuMusic) {
+        menuMusic.currentTime = 0;
+        menuMusic.play().catch(e => console.log("Audio play bloqueado por el navegador:", e));
+    }
+
+    // Secuencia completa de escenarios: HD -> pioa -> piob -> pioc -> pioz
     const listaEscenarios = ['hd.jpg', 'pioa.jpg', 'piob.jpg', 'pioc.jpg', 'pioz.jpg'];
     let indiceEscenarioActual = 0;
     
     // Sistema de Oscurecimiento (Fade out/in)
-    let estadoOscurecimiento = 'NINGUNO'; // 'FADE_OUT', 'FADE_IN', 'NINGUNO'
+    let estadoOscurecimiento = 'NINGUNO'; 
     let contadorOscurecimiento = 0;
-    const duracionFade = 120; // 120 frames para la transición completa
-    let direccionSiguienteFade = 'AVANZAR'; // 'AVANZAR' o 'RETROCEDER'
+    const duracionFade = 120; 
+    let direccionSiguienteFade = 'AVANZAR'; 
 
     let uiContainer = document.getElementById('ui');
     uiContainer.innerHTML = `
-        <div style="font-size: 13px;">Zona: <span id="stage-name-txt">Inicio</span></div>
+        <div style="font-size: 13px;">Zona: <span id="stage-name-txt">Inicio</span> | Vel: <span id="speed-txt">100%</span></div>
         <div id="hearts-container" style="font-size: 14px; letter-spacing: 1px; color: #ff3366;">❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️</div>
     `;
     const stageNameTxt = document.getElementById('stage-name-txt');
+    const speedTxt = document.getElementById('speed-txt');
     const heartsContainer = document.getElementById('hearts-container');
 
     function actualizarCorazonesUI() {
@@ -53,7 +61,7 @@ function iniciarNivel7EscaleraMapa() {
         y: 480,
         ancho: 85,
         alto: 85,
-        velocidad: 2.5,
+        baseVelocidad: 2.5, // 100% de velocidad inicial
         vx: 0,
         vy: 0,
         frameX: 0,
@@ -65,34 +73,35 @@ function iniciarNivel7EscaleraMapa() {
     let cameraX = 0;
     const mundoAncho = 800;
 
+    // Calcular velocidad actual de forma gradual (del 100% al 140% según el escenario avanzado)
+    function obtenerVelocidadActual() {
+        // Incremento proporcional según el índice del escenario actual (de 0 a 4)
+        let factorAumento = 1 + (indiceEscenarioActual / (listaEscenarios.length - 1)) * 0.4;
+        return jugador.baseVelocidad * factorAumento;
+    }
+
     // ==========================================
     // TOPES FÍSICOS Y COLISIONES PARA EDIFICIOS (HD)
     // ==========================================
     function comprobarColision(nx, ny) {
-        // Límites generales del escenario
         if (ny < 310) return true;
         if (ny + jugador.alto > 630) return true;
         if (nx < 10) return true;
         if (nx + jugador.ancho > mundoAncho - 10) return true;
 
-        // Si estamos en el primer escenario (hd.jpg), restringimos el paso hacia los techos/edificios
         if (listaEscenarios[indiceEscenarioActual] === 'hd.jpg') {
-            // Edificio Izquierdo (Bloque rojo principal y zonas elevadas)
             if (nx + jugador.ancho > 40 && nx < 340 && ny < 480) {
                 return true;
             }
-            // Edificio Derecho (Hospital / Estructura formal)
             if (nx + jugador.ancho > 500 && nx < 760 && ny < 490) {
                 return true;
             }
         } else {
-            // Colisiones estándar flexibles para los demás mapas de la zona
             if (nx + jugador.ancho > 210 && nx < 270 && ny + jugador.alto > 390 && ny < 460) {
                 return true;
             }
         }
 
-        // Gestión del Puente / Salida derecha
         let enZonaPuenteX = (nx + jugador.ancho > 720 && nx < 790);
         if (enZonaPuenteX) {
             let medioPuenteY = ny + jugador.alto / 2;
@@ -128,6 +137,11 @@ function iniciarNivel7EscaleraMapa() {
                 }
                 let nombreLimpio = listaEscenarios[indiceEscenarioActual].split('.')[0].toUpperCase();
                 stageNameTxt.innerText = nombreLimpio;
+                
+                // Actualizar indicador visual de velocidad en UI (de 100% a 140%)
+                let porcentajeVel = Math.round((1 + (indiceEscenarioActual / (listaEscenarios.length - 1)) * 0.4) * 100);
+                if (speedTxt) speedTxt.innerText = porcentajeVel + "%";
+
                 estadoOscurecimiento = 'FADE_IN';
             }
             return; 
@@ -139,13 +153,20 @@ function iniciarNivel7EscaleraMapa() {
             return;
         }
 
-        // Movimiento Horizontal con topes de edificios
+        // Movimiento Horizontal con velocidad gradual aplicada
+        let velActual = obtenerVelocidadActual();
+        if (jugador.vx !== 0) {
+            jugador.vx = (jugador.vx > 0) ? velActual : -velActual;
+        }
+        if (jugador.vy !== 0) {
+            jugador.vy = (jugador.vy > 0) ? velActual : -velActual;
+        }
+
         let nuevoX = jugador.x + jugador.vx;
         if (!comprobarColision(nuevoX, jugador.y)) {
             jugador.x = nuevoX;
         }
 
-        // Movimiento Vertical con topes de edificios
         let nuevoY = jugador.y + jugador.vy;
         if (!comprobarColision(jugador.x, nuevoY)) {
             jugador.y = nuevoY;
@@ -164,7 +185,7 @@ function iniciarNivel7EscaleraMapa() {
         if (objetivoCameraX > mundoAncho - canvas.width) objetivoCameraX = mundoAncho - canvas.width;
         cameraX += (objetivoCameraX - cameraX) * 0.1;
 
-        // Detectar borde derecho para AVANZAR con fundido negro
+        // Detectar borde derecho para AVANZAR
         if (jugador.x > mundoAncho - 50 && indiceEscenarioActual < listaEscenarios.length - 1) {
             direccionSiguienteFade = 'AVANZAR';
             estadoOscurecimiento = 'FADE_OUT';
@@ -172,7 +193,7 @@ function iniciarNivel7EscaleraMapa() {
             return;
         }
 
-        // Detectar borde izquierdo para RETROCEDER con fundido negro
+        // Detectar borde izquierdo para RETROCEDER
         if (jugador.x <= 15 && indiceEscenarioActual > 0) {
             direccionSiguienteFade = 'RETROCEDER';
             estadoOscurecimiento = 'FADE_OUT';
@@ -180,10 +201,11 @@ function iniciarNivel7EscaleraMapa() {
             return;
         }
 
-        // Animación de caminata
+        // Animación de caminata ajustada a la velocidad actual
         if (jugador.vx !== 0 || jugador.vy !== 0) {
             jugador.animCounter++;
-            if (jugador.animCounter % 8 === 0) {
+            let frecuenciaAnim = Math.max(4, Math.floor(8 / (obtenerVelocidadActual() / jugador.baseVelocidad)));
+            if (jugador.animCounter % frecuenciaAnim === 0) {
                 jugador.frameX = (jugador.frameX + 1) % 4;
             }
         } else {
@@ -197,7 +219,6 @@ function iniciarNivel7EscaleraMapa() {
         ctx.save();
         ctx.translate(-cameraX, 0);
 
-        // 1. Dibujar el mapa actual
         let imgActual = imagenesEscenarios[indiceEscenarioActual];
         if (imgActual && imgActual.complete && imgActual.naturalWidth !== 0) {
             ctx.drawImage(imgActual, 0, 150, mundoAncho, 450);
@@ -206,7 +227,6 @@ function iniciarNivel7EscaleraMapa() {
             ctx.fillRect(0, 0, mundoAncho, canvas.height);
         }
 
-        // 2. Dibujar al perrito
         if (tiempoInvulnerable === 0 || Math.floor(tiempoInvulnerable / 4) % 2 === 0) {
             if (perroCartoonSheet.complete && perroCartoonSheet.naturalWidth !== 0) {
                 const sheetW = perroCartoonSheet.width / 4;
@@ -237,7 +257,6 @@ function iniciarNivel7EscaleraMapa() {
 
         ctx.restore();
 
-        // 3. Efecto de oscurecimiento (Fade) durante las transiciones
         if (estadoOscurecimiento !== 'NINGUNO') {
             let alpha = contadorOscurecimiento / duracionFade;
             if (alpha > 1) alpha = 1;
@@ -266,10 +285,10 @@ function iniciarNivel7EscaleraMapa() {
         <div class="btn-control btn-jump" id="btn-jump" style="width: 55px; height: 55px; font-size: 20px;">🐾</div>
     `;
 
-    document.getElementById('btn-left').onmousedown = () => { jugador.vx = -jugador.velocidad; };
-    document.getElementById('btn-right').onmousedown = () => { jugador.vx = jugador.velocidad; };
-    document.getElementById('btn-up').onmousedown = () => { jugador.vy = -jugador.velocidad; };
-    document.getElementById('btn-down').onmousedown = () => { jugador.vy = jugador.velocidad; };
+    document.getElementById('btn-left').onmousedown = () => { jugador.vx = -obtenerVelocidadActual(); };
+    document.getElementById('btn-right').onmousedown = () => { jugador.vx = obtenerVelocidadActual(); };
+    document.getElementById('btn-up').onmousedown = () => { jugador.vy = -obtenerVelocidadActual(); };
+    document.getElementById('btn-down').onmousedown = () => { jugador.vy = obtenerVelocidadActual(); };
     document.getElementById('btn-jump').onclick = () => { tiempoInvulnerable = 15; };
 
     document.getElementById('btn-left').onmouseup = () => { if (jugador.vx < 0) jugador.vx = 0; };
@@ -278,10 +297,11 @@ function iniciarNivel7EscaleraMapa() {
     document.getElementById('btn-down').onmouseup = () => { if (jugador.vy > 0) jugador.vy = 0; };
 
     window.onkeydown = (e) => {
-        if (e.key === 'ArrowLeft') jugador.vx = -jugador.velocidad;
-        if (e.key === 'ArrowRight') jugador.vx = jugador.velocidad;
-        if (e.key === 'ArrowUp') jugador.vy = -jugador.velocidad;
-        if (e.key === 'ArrowDown') jugador.vy = jugador.velocidad;
+        let v = obtenerVelocidadActual();
+        if (e.key === 'ArrowLeft') jugador.vx = -v;
+        if (e.key === 'ArrowRight') jugador.vx = v;
+        if (e.key === 'ArrowUp') jugador.vy = -v;
+        if (e.key === 'ArrowDown') jugador.vy = v;
     };
 
     window.onkeyup = (e) => {
