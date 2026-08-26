@@ -28,6 +28,8 @@ function cargarMinijuego(nombreNivel) {
         iniciarMinijuegoCascada();
     } else if (nombreNivel === 'nivel6') {
         iniciarNivel6Cascada();
+    } else if (nombreNivel === 'nivel7') {
+        iniciarNivel7EscaleraMapa();
     }
 }
 
@@ -799,13 +801,12 @@ function iniciarNivel6Cascada() {
         animCounter: 0
     };
 
-    // Estructura adaptada estrictamente a los 4 cuadros indicados:
     let plataformas = [
-        { x: 30, y: 580, ancho: 340, alto: 30, tipo: 'puente' }, // Cuadro B (Puente horizontal inicial que colapsa)
-        { x: 70, y: 440, ancho: 120, alto: 22, tipo: 'barril' },  // Cuadro C (Plataforma roja / barril)
-        { x: 210, y: 310, ancho: 120, alto: 22, tipo: 'barril' }, // Cuadro C (Plataforma roja / barril)
-        { x: 90, y: 180, ancho: 120, alto: 22, tipo: 'barril' },  // Cuadro C (Plataforma roja / barril)
-        { x: 60, y: 70, ancho: 280, alto: 35, tipo: 'meta' }      // Puente superior final de llegada
+        { x: 30, y: 580, ancho: 340, alto: 30, tipo: 'puente' },
+        { x: 70, y: 440, ancho: 120, alto: 22, tipo: 'barril' },
+        { x: 210, y: 310, ancho: 120, alto: 22, tipo: 'barril' },
+        { x: 90, y: 180, ancho: 120, alto: 22, tipo: 'barril' },
+        { x: 60, y: 70, ancho: 280, alto: 35, tipo: 'meta' }
     ];
 
     let barrilesFlotantes = [];
@@ -839,7 +840,6 @@ function iniciarNivel6Cascada() {
         jugador.y += jugador.vy;
         jugador.enSuelo = false;
 
-        // Colisiones con plataformas (Cuadro B y Cuadro C)
         for (let p of plataformas) {
             if (
                 jugador.x + jugador.ancho > p.x &&
@@ -852,7 +852,6 @@ function iniciarNivel6Cascada() {
                 jugador.vy = 0;
                 jugador.enSuelo = true;
 
-                // El Cuadro B (Puente base) colapsa/desaparece tras pisarlo un instante
                 if (p.tipo === 'puente') {
                     setTimeout(() => {
                         p.y = 9999; 
@@ -867,7 +866,6 @@ function iniciarNivel6Cascada() {
             tiempoCreacion = 0;
         }
 
-        // Obstáculos de caída opcionales
         for (let i = 0; i < barrilesFlotantes.length; i++) {
             let b = barrilesFlotantes[i];
             b.y += b.velocidadY;
@@ -898,7 +896,6 @@ function iniciarNivel6Cascada() {
             }
         }
 
-        // Meta superior
         let meta = plataformas[plataformas.length - 1];
         if (jugador.y <= meta.y && jugador.x + jugador.ancho > meta.x && jugador.x < meta.x + meta.ancho) {
             juegoActivo = false;
@@ -906,7 +903,6 @@ function iniciarNivel6Cascada() {
             document.location.reload();
         }
 
-        // Si cae al fondo / agua
         if (jugador.y > canvas.height) {
             juegoActivo = false;
             alert("¡Caíste al agua! Game Over.");
@@ -917,33 +913,25 @@ function iniciarNivel6Cascada() {
     function renderizar() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // ==========================================
-        // CUADRO A: Background completo de color amarillo
-        // ==========================================
         ctx.fillStyle = "#f1c40f"; 
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // ==========================================
-        // CUADRO B y otros: Puente horizontal y Meta
-        // ==========================================
         for (let i = 0; i < plataformas.length; i++) {
             let p = plataformas[i];
             if (p.tipo === 'puente') {
-                ctx.fillStyle = "#2980b9"; // CUADRO B: Color azul (puente horizontal base)
+                ctx.fillStyle = "#2980b9";
                 ctx.fillRect(p.x, p.y, p.ancho, p.alto);
             } else if (p.tipo === 'barril') {
-                ctx.fillStyle = "#e74c3c"; // CUADRO C: Color rojo (plataformas de salto estilo barril)
+                ctx.fillStyle = "#e74c3c";
                 ctx.fillRect(p.x, p.y, p.ancho, p.alto);
-                // Detalles visuales en la plataforma roja
                 ctx.fillStyle = "#c0392b";
                 ctx.fillRect(p.x, p.y + 6, p.ancho, p.alto - 12);
             } else if (p.tipo === 'meta') {
-                ctx.fillStyle = "#8e44ad"; // Puente superior de llegada
+                ctx.fillStyle = "#8e44ad";
                 ctx.fillRect(p.x, p.y, p.ancho, p.alto);
             }
         }
 
-        // Dibujar elementos flotantes adicionales
         for (let b of barrilesFlotantes) {
             ctx.fillStyle = "#c0392b";
             ctx.beginPath();
@@ -951,7 +939,6 @@ function iniciarNivel6Cascada() {
             ctx.fill();
         }
 
-        // Dibujar personaje (Perrita / Jugador)
         ctx.fillStyle = "#d35400";
         ctx.fillRect(jugador.x, jugador.y, jugador.ancho, jugador.alto);
     }
@@ -962,7 +949,6 @@ function iniciarNivel6Cascada() {
         if (juegoActivo) requestAnimationFrame(loop);
     }
 
-    // Controles
     document.getElementById('btn-left').onclick = () => { jugador.vx = -3.5; };
     document.getElementById('btn-right').onclick = () => { jugador.vx = 3.5; };
     document.getElementById('btn-jump').onclick = () => {
@@ -987,6 +973,250 @@ function iniciarNivel6Cascada() {
     window.onkeyup = (e) => {
         if (e.key === 'ArrowLeft' && jugador.vx < 0) jugador.vx = 0;
         if (e.key === 'ArrowRight' && jugador.vx > 0) jugador.vx = 0;
+    };
+
+    loop();
+}
+
+// ==========================================
+// 7. MINIJUEGO 7: MAPA ZONA OESTE (CON TOPES FÍSICOS Y PERRITO CARTOON PNG)
+// ==========================================
+function iniciarNivel7EscaleraMapa() {
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = 400;
+    canvas.height = 700;
+
+    let puntaje = 0;
+    let juegoActivo = true;
+    let vidas = 10;
+    let tiempoInvulnerable = 0;
+
+    let uiContainer = document.getElementById('ui');
+    uiContainer.innerHTML = `
+        <div style="font-size: 13px;">Zona Oeste: <span id="score">0</span></div>
+        <div id="hearts-container" style="font-size: 14px; letter-spacing: 1px; color: #ff3366;">❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️</div>
+    `;
+    const scoreSpan = document.getElementById('score');
+    const heartsContainer = document.getElementById('hearts-container');
+
+    function actualizarCorazonesUI() {
+        let textoCorazones = "";
+        for (let i = 0; i < vidas; i++) textoCorazones += "❤️";
+        heartsContainer.innerText = textoCorazones;
+    }
+
+    // Imagen del mapa (hd.jpg)
+    const mapaEscolarImg = new Image();
+    mapaEscolarImg.src = 'hd.jpg';
+
+    // Sprite PNG del perrito cartoon (tobiaspapersss.png)
+    const perroCartoonSheet = new Image();
+    perroCartoonSheet.src = 'tobiaspapersss.png';
+
+    // Objeto del Jugador
+    const jugador = {
+        x: 180,
+        y: 530,
+        ancho: 55,
+        alto: 55,
+        velocidad: 2.8,
+        vx: 0,
+        vy: 0,
+        frameX: 0,
+        animCounter: 0,
+        saltar: function() {
+            // Acción de salto en el mapa libre
+            tiempoInvulnerable = Math.max(tiempoInvulnerable, 15);
+        }
+    };
+
+    // ==========================================
+    // TOPES FÍSICOS (Zonas bloqueadas / Edificios de la imagen hd.jpg)
+    // ==========================================
+    const topesFisicos = [
+        { x: 35, y: 300, ancho: 160, alto: 140 },  // Edificio izquierdo (rojo)
+        { x: 225, y: 260, ancho: 145, alto: 165 }, // Edificio derecho (escuela principal)
+        { x: 180, y: 380, ancho: 60, alto: 80 },   // Zona central trasera
+        { x: 0, y: 0, ancho: 400, alto: 210 },     // Límite superior del mapa
+        { x: 0, y: 630, ancho: 400, alto: 70 }     // Límite inferior del mapa
+    ];
+
+    function comprobarColision(nx, ny) {
+        let hitboxJugador = { x: nx + 5, y: ny + 25, ancho: jugador.ancho - 10, alto: jugador.alto - 25 };
+        for (let tope of topesFisicos) {
+            if (
+                hitboxJugador.x < tope.x + tope.ancho &&
+                hitboxJugador.x + hitboxJugador.ancho > tope.x &&
+                hitboxJugador.y < tope.y + tope.alto &&
+                hitboxJugador.y + hitboxJugador.alto > tope.y
+            ) {
+                return true; // Choca con un edificio o límite
+            }
+        }
+        return false;
+    }
+
+    let obstaculosEscuela = [];
+
+    function crearObstaculoEscuela() {
+        obstaculosEscuela.push({
+            x: Math.random() * 260 + 70,
+            y: 220,
+            ancho: 35,
+            alto: 35,
+            velY: 1.8
+        });
+    }
+
+    let contadorSpawn = 0;
+
+    function actualizar() {
+        if (!juegoActivo) return;
+
+        if (tiempoInvulnerable > 0) tiempoInvulnerable--;
+
+        // Movimiento Horizontal con topes
+        let nuevoX = jugador.x + jugador.vx;
+        if (!comprobarColision(nuevoX, jugador.y)) {
+            jugador.x = nuevoX;
+        }
+
+        // Movimiento Vertical con topes
+        let nuevoY = jugador.y + jugador.vy;
+        if (!comprobarColision(jugador.x, nuevoY)) {
+            jugador.y = nuevoY;
+        }
+
+        // Animación del perrito cartoon
+        if (jugador.vx !== 0 || jugador.vy !== 0) {
+            jugador.animCounter++;
+            if (jugador.animCounter % 8 === 0) {
+                jugador.frameX = (jugador.frameX + 1) % 4;
+            }
+        } else {
+            jugador.frameX = 0;
+        }
+
+        contadorSpawn++;
+        if (contadorSpawn > 80) {
+            crearObstaculoEscuela();
+            contadorSpawn = 0;
+        }
+
+        for (let i = 0; i < obstaculosEscuela.length; i++) {
+            let obs = obstaculosEscuela[i];
+            obs.y += obs.velY;
+
+            let distX = (jugador.x + jugador.ancho / 2) - (obs.x + obs.ancho / 2);
+            let distY = (jugador.y + jugador.alto / 2) - (obs.y + obs.alto / 2);
+            let distancia = Math.sqrt(distX * distX + distY * distY);
+
+            if (distancia < 30 && tiempoInvulnerable === 0) {
+                vidas--;
+                actualizarCorazonesUI();
+                tiempoInvulnerable = 45;
+                obstaculosEscuela.splice(i, 1);
+                i--;
+
+                if (vidas <= 0) {
+                    juegoActivo = false;
+                    alert(`¡Game Over! Puntaje final: ${Math.floor(puntaje)}`);
+                    document.location.reload();
+                    return;
+                }
+            }
+
+            if (obs.y > canvas.height) {
+                obstaculosEscuela.splice(i, 1);
+                i--;
+                puntaje += 10;
+                if (scoreSpan) scoreSpan.innerText = Math.floor(puntaje);
+            }
+        }
+    }
+
+    function renderizar() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // 1. Dibujar el mapa escolar (hd.jpg) exactamente como fondo
+        if (mapaEscolarImg.complete && mapaEscolarImg.naturalWidth !== 0) {
+            ctx.drawImage(mapaEscolarImg, 0, 150, canvas.width, 420);
+        } else {
+            ctx.fillStyle = "#2ecc71";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // 2. Dibujar elementos u obstáculos en el mapa
+        for (let obs of obstaculosEscuela) {
+            ctx.fillStyle = "#e74c3c";
+            ctx.fillRect(obs.x, obs.y, obs.ancho, obs.alto);
+        }
+
+        // 3. Dibujar al perrito cartoon (.png)
+        if (tiempoInvulnerable === 0 || Math.floor(tiempoInvulnerable / 4) % 2 === 0) {
+            if (perroCartoonSheet.complete && perroCartoonSheet.naturalWidth !== 0) {
+                const sheetW = perroCartoonSheet.width / 4;
+                const sheetH = perroCartoonSheet.height / 3;
+                ctx.drawImage(
+                    perroCartoonSheet,
+                    jugador.frameX * sheetW, 0, sheetW, sheetH,
+                    jugador.x, jugador.y, jugador.ancho, jugador.alto
+                );
+            } else {
+                ctx.fillStyle = "#d35400";
+                ctx.fillRect(jugador.x, jugador.y, jugador.ancho, jugador.alto);
+            }
+        }
+    }
+
+    function loop() {
+        actualizar();
+        renderizar();
+        if (juegoActivo) requestAnimationFrame(loop);
+    }
+
+    // ==========================================
+    // CONTROLES TÁCTILES Y DE TECLADO (DIRECCIONALES + SALTO)
+    // ==========================================
+    const controlsContainer = document.getElementById('controls');
+    controlsContainer.innerHTML = `
+        <div style="display: flex; gap: 4px; align-items: center;">
+            <div class="btn-control" id="btn-left" style="width: 50px; height: 50px; font-size: 20px;">◀</div>
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+                <div class="btn-control" id="btn-up" style="width: 45px; height: 23px; font-size: 13px;">▲</div>
+                <div class="btn-control" id="btn-down" style="width: 45px; height: 23px; font-size: 13px;">▼</div>
+            </div>
+            <div class="btn-control" id="btn-right" style="width: 50px; height: 50px; font-size: 20px;">▶</div>
+        </div>
+        <div class="btn-control btn-jump" id="btn-jump" style="width: 55px; height: 55px; font-size: 20px;">▲</div>
+    `;
+
+    document.getElementById('btn-left').onmousedown = () => { jugador.vx = -jugador.velocidad; };
+    document.getElementById('btn-right').onmousedown = () => { jugador.vx = jugador.velocidad; };
+    document.getElementById('btn-up').onmousedown = () => { jugador.vy = -jugador.velocidad; };
+    document.getElementById('btn-down').onmousedown = () => { jugador.vy = jugador.velocidad; };
+    document.getElementById('btn-jump').onclick = () => { jugador.saltar(); };
+
+    document.getElementById('btn-left').onmouseup = () => { if (jugador.vx < 0) jugador.vx = 0; };
+    document.getElementById('btn-right').onmouseup = () => { if (jugador.vx > 0) jugador.vx = 0; };
+    document.getElementById('btn-up').onmouseup = () => { if (jugador.vy < 0) jugador.vy = 0; };
+    document.getElementById('btn-down').onmouseup = () => { if (jugador.vy > 0) jugador.vy = 0; };
+
+    window.onkeydown = (e) => {
+        if (e.key === 'ArrowLeft') jugador.vx = -jugador.velocidad;
+        if (e.key === 'ArrowRight') jugador.vx = jugador.velocidad;
+        if (e.key === 'ArrowUp') jugador.vy = -jugador.velocidad;
+        if (e.key === 'ArrowDown') jugador.vy = jugador.velocidad;
+        if (e.key === ' ' || e.key === 'Enter') jugador.saltar();
+    };
+
+    window.onkeyup = (e) => {
+        if (e.key === 'ArrowLeft' && jugador.vx < 0) jugador.vx = 0;
+        if (e.key === 'ArrowRight' && jugador.vx > 0) jugador.vx = 0;
+        if (e.key === 'ArrowUp' && jugador.vy < 0) jugador.vy = 0;
+        if (e.key === 'ArrowDown' && jugador.vy > 0) jugador.vy = 0;
     };
 
     loop();
